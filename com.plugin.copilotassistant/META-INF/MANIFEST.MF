@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Copilotassistant
+Bundle-SymbolicName: com.plugin.copilotassistant;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: PLUGIN
+Require-Bundle: org.eclipse.ui
+Automatic-Module-Name: com.plugin.copilotassistant
+Bundle-RequiredExecutionEnvironment: JavaSE-21
