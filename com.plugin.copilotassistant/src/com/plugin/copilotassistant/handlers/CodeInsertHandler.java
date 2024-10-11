@@ -8,6 +8,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -26,7 +28,6 @@ public class CodeInsertHandler extends AbstractHandler {
         IPreferenceStore preferenceStore = PlatformUI.getPreferenceStore();
         boolean enabled = preferenceStore.getBoolean("ENABLE_INSERTION"); // Retrieve the value of the toggle button
 
-
         if (editor instanceof ITextEditor) {
             ITextEditor textEditor = (ITextEditor) editor;
             IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
@@ -34,7 +35,7 @@ public class CodeInsertHandler extends AbstractHandler {
             try {
                 ITextSelection selection = (ITextSelection) textEditor.getSelectionProvider().getSelection();
                 int offset = selection.getOffset();
-                String textToInsert = "Done";
+                String textToInsert = "$Done";
                 
                 if (!enabled) {
                 	document.replace(offset, 0, "$");
@@ -43,20 +44,44 @@ public class CodeInsertHandler extends AbstractHandler {
 
                 document.replace(offset, 0, textToInsert);
 
-            
-                
-             // Get the StyledText widget
+                // Get the StyledText widget
                 StyledText styledText = (StyledText) textEditor.getAdapter(org.eclipse.swt.widgets.Control.class);
 
                 if (styledText != null) {
-                    // Create a StyleRange to apply the green color
+                    // Create a StyleRange to apply the gray color
                     StyleRange styleRange = new StyleRange();
-                    styleRange.start = offset;
-                    styleRange.length = textToInsert.length();
-                    styleRange.foreground = Display.getDefault().getSystemColor(org.eclipse.swt.SWT.COLOR_GREEN);
+                    styleRange.start = offset+1;
+                    styleRange.length = textToInsert.length()-1;
+                    styleRange.foreground = Display.getDefault().getSystemColor(org.eclipse.swt.SWT.COLOR_GRAY);
 
-                    // Apply the StyleRange
+                    // Apply the StyleRange (make the text gray)
                     styledText.setStyleRange(styleRange);
+                    
+                    // Move the cursor to the end of the inserted text
+                    styledText.setCaretOffset(offset + textToInsert.length());
+                    
+                    
+                    // Add a listener for key events after insertion
+                    styledText.addVerifyKeyListener(new VerifyKeyListener() {
+                        @Override
+                        public void verifyKey(VerifyEvent e) {
+                            // If Enter is pressed, keep the text as is
+                            if (e.character == '\r' || e.character == '\n') {
+                                // Do nothing on Enter key
+                                styledText.removeVerifyKeyListener(this); // Remove listener once Enter is pressed
+                            } else {
+                                // Remove the inserted text
+                                Display.getDefault().asyncExec(() -> {
+                                    try {
+                                        document.replace(offset+1, textToInsert.length(), "");
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                });
+                                styledText.removeVerifyKeyListener(this); // Remove listener once text is replaced
+                            }
+                        }
+                    });
                 }
             } catch (Exception e) {
                 e.printStackTrace();
