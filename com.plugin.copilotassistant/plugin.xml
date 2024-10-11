@@ -27,7 +27,7 @@
 	    point="org.eclipse.ui.preferencePages">
 	   <page
 	      id="com.plugin.copilotassistant.preferences.PluginPreferencePage"
-	      name="Plugin Preferences"
+	      name="FauxPilot"
 	      class="com.plugin.copilotassistant.preferences.PluginPreferencePage">
 	   </page>
 	</extension>
