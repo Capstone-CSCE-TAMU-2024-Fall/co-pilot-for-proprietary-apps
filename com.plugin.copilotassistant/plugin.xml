@@ -14,9 +14,6 @@
 	   </menuContribution>
 	</extension>
 
-
-	
-
 	<extension
 	    point="org.eclipse.ui.handlers">
 	   <handler
@@ -34,18 +31,7 @@
 	      class="com.plugin.copilotassistant.preferences.PluginPreferencePage">
 	   </page>
 	</extension>
-	
-	<extension
-	   point="org.eclipse.ui.menus">
-	   <menuContribution
-	      locationURI="menu:window?after=additions">
-	      <command
-	         commandId="com.plugin.copilotassistant.commands.openPreferences"
-	         label="Preferences"
-	         style="push">
-	      </command>
-	   </menuContribution>
-	</extension>
+
 
 	<extension
 	   point="org.eclipse.ui.commands">
