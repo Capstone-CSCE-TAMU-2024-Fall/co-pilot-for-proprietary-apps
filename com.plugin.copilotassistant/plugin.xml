@@ -6,11 +6,16 @@
 	    point="org.eclipse.ui.menus">
 	   <menuContribution
 	       locationURI="menu:org.eclipse.ui.main.menu?after=window"> 
-	      <command
-	          commandId="com.plugin.copilotassistant.commands.openPreferences"
-	          label="FauxPilot"
-	          style="push">
-	      </command>
+            <menu
+                label="FauxPilot"
+                id="com.plugin.copilotassistant.menus.fauxpilotMenu">
+                <command
+                    commandId="com.plugin.copilotassistant.commands.openPreferences"
+                    label="Open Preferences"
+                    style="push">
+                </command>
+                <!-- Add more menu items here if needed -->
+            </menu>
 	   </menuContribution>
 	</extension>
 
