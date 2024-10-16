@@ -12,6 +12,9 @@ Require-Bundle: org.eclipse.ui,
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.17.2",
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.17.2",
  com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.17.2",
+ org.mockito.mockito-core,
+ net.bytebuddy.byte-buddy,
+ org.objenesis,
  org.junit,
  junit-jupiter-api
 Automatic-Module-Name: com.plugin.copilotassistant
