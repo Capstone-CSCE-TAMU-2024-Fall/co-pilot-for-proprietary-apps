@@ -1,4 +1,4 @@
-package com.plugin.copilotassistant.backendConnection;
+package com.plugin.copilotassistant.backendconnection;
 
 import java.io.IOException;
 import java.net.Authenticator;
@@ -41,6 +41,21 @@ public class FauxpilotConnectionImpl implements FauxpilotConnection {
 				.timeout(Duration.ofSeconds(3))
 				.headers("Content-Type", "application/json", "Accept", "application/json").POST(body).build();
 		return client.sendAsync(request, BodyHandlers.ofString());
+	}
+	
+	public static CompletableFuture<FauxpilotResponse> parseResponse(CompletableFuture<HttpResponse<String>> response) {
+		if (response == null) {
+			return CompletableFuture.supplyAsync(() -> new FauxpilotResponse());
+		}
+		
+		return response.thenApply(HttpResponse::body).thenApply(r -> {
+			try {
+				return new ObjectMapper().readValue(r, FauxpilotResponse.class);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+				return new FauxpilotResponse();
+			}
+		});
 	}
 
 }
