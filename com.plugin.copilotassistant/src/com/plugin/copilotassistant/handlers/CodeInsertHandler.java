@@ -27,36 +27,39 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import com.plugin.copilotassistant.backendconnection.FauxpilotConnectionImpl;
 
 public class CodeInsertHandler extends AbstractHandler {
-	public Runnable run(boolean enabled, String textToInsert, IDocument document, int offset, ITextEditor textEditor) {
+	public Runnable insertCodeSuggestion(boolean enabled, String textToInsert, IDocument document, int offset, ITextEditor textEditor) {
 		return new Runnable() {
 			@Override
 			public void run() {
+				var actualTextToInsert = "$";
+				if (enabled) {
+					actualTextToInsert = textToInsert;
+				}
 				try {
-					if (!enabled) {
-						document.replace(offset, 0, "$");
-						return;
-					} else {
-						document.replace(offset, 0, textToInsert);
-					}
+					document.replace(offset, 0, actualTextToInsert);
 				} catch (BadLocationException e) {
 					e.printStackTrace();
 				}
-
 				// Get the StyledText widget
 				StyledText styledText = (StyledText) textEditor.getAdapter(org.eclipse.swt.widgets.Control.class);
 
 				if (styledText != null) {
 					// Create a StyleRange to apply the gray color
+					var insertedLength = actualTextToInsert.length();
 					StyleRange styleRange = new StyleRange();
 					styleRange.start = offset;
-					styleRange.length = textToInsert.length();
+					styleRange.length = insertedLength;
 					styleRange.foreground = Display.getDefault().getSystemColor(org.eclipse.swt.SWT.COLOR_GRAY);
 
 					// Apply the StyleRange (make the text gray)
 					styledText.setStyleRange(styleRange);
 
 					// Move the cursor to the end of the inserted text
-					styledText.setCaretOffset(offset + textToInsert.length());
+					styledText.setCaretOffset(offset + insertedLength);
+					
+					if (!enabled) {
+						return;
+					}
 
 					// Add a listener for key events after insertion
 					styledText.addVerifyKeyListener(new VerifyKeyListener() {
@@ -64,20 +67,18 @@ public class CodeInsertHandler extends AbstractHandler {
 						public void verifyKey(VerifyEvent e) {
 							// If Tab is pressed, keep the text as is
 							if (e.keyCode == KeyEvent.VK_TAB) {
-								// Do nothing on Enter key
-								styledText.removeVerifyKeyListener(this); // Remove listener once Tab is
-																			// pressed
+								// Do nothing on Tab key
+								styledText.removeVerifyKeyListener(this); // Remove listener once Tab is pressed
 							} else {
 								// Remove the inserted text
 								Display.getDefault().asyncExec(() -> {
 									try {
-										document.replace(offset, textToInsert.length(), "");
+										document.replace(offset, insertedLength, "");
 									} catch (Exception ex) {
 										ex.printStackTrace();
 									}
 								});
-								styledText.removeVerifyKeyListener(this); // Remove listener once text is
-																			// replaced
+								styledText.removeVerifyKeyListener(this); // Remove listener once text is replaced
 							}
 						}
 					});
@@ -107,19 +108,21 @@ public class CodeInsertHandler extends AbstractHandler {
 
 			if (debug) {
 				String textToInsert = "Test";
-				Display.getDefault().asyncExec(run(enabled, textToInsert, document, offset, textEditor));
+				Display.getDefault().asyncExec(insertCodeSuggestion(enabled, textToInsert, document, offset, textEditor));
 			} else {
-				var conn = new FauxpilotConnectionImpl(ip, port);
+				FauxpilotConnectionImpl conn = new FauxpilotConnectionImpl(ip, port);
 				CompletableFuture<HttpResponse<String>> response = null;
 				try {
-					response = conn.getResponse(document.get(0, offset));
+					var context = document.get(0, offset);
+					response = conn.getResponse(context);
+					System.out.println(context);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
 				FauxpilotConnectionImpl.parseResponse(response).thenAccept(r -> {
 					String textToInsert = MessageFormat.format("{0}", r.choices().getFirst().text());
-					Display.getDefault().asyncExec(run(enabled, textToInsert, document, offset, textEditor));
+					Display.getDefault().asyncExec(insertCodeSuggestion(enabled, textToInsert, document, offset, textEditor));
 				}).exceptionally((e) -> {
 					return null;
 				}).join();

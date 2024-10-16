@@ -24,4 +24,5 @@ record FauxpilotRequest(String prompt, int maxTokens, float temperature, List<St
 
 interface FauxpilotConnection {
 	CompletableFuture<HttpResponse<String>> getResponse(String prompt) throws JsonProcessingException;
+
 }
