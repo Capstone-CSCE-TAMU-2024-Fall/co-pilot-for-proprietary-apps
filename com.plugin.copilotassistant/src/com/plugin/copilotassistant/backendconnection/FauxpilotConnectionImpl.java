@@ -44,6 +44,10 @@ public class FauxpilotConnectionImpl implements FauxpilotConnection {
 	}
 	
 	public static CompletableFuture<FauxpilotResponse> parseResponse(CompletableFuture<HttpResponse<String>> response) {
+		if (response == null) {
+			return CompletableFuture.supplyAsync(() -> new FauxpilotResponse());
+		}
+		
 		return response.thenApply(HttpResponse::body).thenApply(r -> {
 			try {
 				return new ObjectMapper().readValue(r, FauxpilotResponse.class);
