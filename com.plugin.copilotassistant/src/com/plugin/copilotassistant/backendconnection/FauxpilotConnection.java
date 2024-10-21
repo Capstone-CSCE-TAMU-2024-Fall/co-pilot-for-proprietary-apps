@@ -1,7 +1,6 @@
 package com.plugin.copilotassistant.backendconnection;
 
 import java.net.http.HttpResponse;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -22,7 +21,7 @@ record TextCompletionUsage(@JsonAlias("completion_tokens") double completionToke
 record FauxpilotRequest(String prompt, int maxTokens, float temperature, List<String> stop) {
 }
 
-interface FauxpilotConnection {
+public interface FauxpilotConnection {
 	CompletableFuture<HttpResponse<String>> getResponse(String prompt) throws JsonProcessingException;
 
 }
