@@ -21,7 +21,7 @@ class FauxpilotConnectionImplTest {
 		try {
 			var ip = InetAddress.getLoopbackAddress();
 			var port = 5000;
-			FauxpilotConnectionImpl conn = new FauxpilotConnectionImpl(ip, port);
+			FauxpilotConnection conn = new FauxpilotConnectionImpl(ip, port);
 			System.out.println(conn.getResponse("what does the ").thenApply(HttpResponse::body).get());
 		} catch (JsonProcessingException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
@@ -46,7 +46,7 @@ class FauxpilotConnectionImplTest {
 		try {
 			var ip = InetAddress.getLoopbackAddress();
 			var port = 5000;
-			FauxpilotConnectionImpl conn = new FauxpilotConnectionImpl(ip, port);
+			FauxpilotConnection conn = new FauxpilotConnectionImpl(ip, port);
 			var response = FauxpilotConnectionImpl.parseResponse(conn.getResponse("what does the ")).join();
 			System.out.println(MessageFormat.format("Parsed response: {0}", response));
 		} catch (JsonProcessingException e) {
