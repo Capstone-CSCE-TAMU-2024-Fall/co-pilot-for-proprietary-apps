@@ -1,15 +1,10 @@
 package com.plugin.copilotassistant.backendconnection;
 
-import java.io.IOException;
-import java.net.Authenticator;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpRequest.Builder;
 import java.net.http.HttpResponse;
@@ -37,7 +32,7 @@ public class FauxpilotConnectionImpl implements FauxpilotConnection {
 
 	@Override
 	public CompletableFuture<HttpResponse<String>> getResponse(String prompt) throws JsonProcessingException {
-		var body = BodyPublishers.ofString(new ObjectMapper()
+		BodyPublisher body = BodyPublishers.ofString(new ObjectMapper()
 				.writeValueAsString(new FauxpilotRequest(prompt, 200, 0.1f, new ArrayList<String>())));
 		return this.client.sendAsync(this.request.POST(body).build(), BodyHandlers.ofString());
 	}
