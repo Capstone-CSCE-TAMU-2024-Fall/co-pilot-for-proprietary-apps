@@ -46,7 +46,10 @@ This code has been run and tested using the following internal and external comp
 
 ## Tests
 
-    NA For now
+    1. Open up the plugin in Eclipse
+    2. Navigate to the copilotassistant.target
+    3. In the top right corner select Start Target or Reload Target
+    4. Then navigate to any file to test and select run with tests
 
 ## Deployment
 
