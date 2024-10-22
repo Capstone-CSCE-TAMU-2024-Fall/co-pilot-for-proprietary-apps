@@ -1,8 +1,10 @@
-package com.plugin.copilotassistant.backendconnection;
+package com.plugin.copilotassistant.fauxpilotconnection;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.URISyntaxException;
 import java.net.http.HttpResponse;
 import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
@@ -11,17 +13,20 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.plugin.copilotassistant.backendconnection.BackendConnection;
+import com.plugin.copilotassistant.backendconnection.BackendResponse;
 
-class FauxpilotConnectionImplTest {
+class FauxpilotConnectionTest {
 
 	@Test
 	void testGetResponse() {
 		try {
 			InetAddress ip = InetAddress.getLoopbackAddress();
 			int port = 5000;
-			FauxpilotConnection conn = new FauxpilotConnectionImpl(ip, port);
+			InetSocketAddress address = new InetSocketAddress(ip, port);
+			BackendConnection conn = new FauxpilotConnection(address);
 			System.out.println(conn.getResponse("what does the ").thenApply(HttpResponse::body).get());
-		} catch (JsonProcessingException | InterruptedException | ExecutionException e) {
+		} catch (JsonProcessingException | InterruptedException | ExecutionException | URISyntaxException e) {
 			e.printStackTrace();
 			fail("Request failed");
 		}
@@ -44,10 +49,11 @@ class FauxpilotConnectionImplTest {
 		try {
 			InetAddress ip = InetAddress.getLoopbackAddress();
 			int port = 5000;
-			FauxpilotConnection conn = new FauxpilotConnectionImpl(ip, port);
-			FauxpilotResponse response = FauxpilotConnectionImpl.parseResponse(conn.getResponse("what does the ")).join();
+			InetSocketAddress address = new InetSocketAddress(ip, port);
+			BackendConnection conn = new FauxpilotConnection(address);
+			BackendResponse response = conn.parseResponse(conn.getResponse("what does the ")).join();
 			System.out.println(MessageFormat.format("Parsed response: {0}", response));
-		} catch (JsonProcessingException e) {
+		} catch (JsonProcessingException | URISyntaxException e) {
 			e.printStackTrace();
 			fail("Failed to parse");
 		}
