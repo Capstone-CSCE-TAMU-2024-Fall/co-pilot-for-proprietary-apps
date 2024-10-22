@@ -1,6 +1,6 @@
 package com.plugin.copilotassistant.handlers;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.http.HttpResponse;
 import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
@@ -18,8 +18,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import com.plugin.copilotassistant.backendconnection.FauxpilotConnection;
-import com.plugin.copilotassistant.backendconnection.FauxpilotConnectionImpl;
+import com.plugin.copilotassistant.backendconnection.BackendConnection;
+import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
 
 public class CodeInsertHandler extends AbstractHandler {
 
@@ -32,9 +32,11 @@ public class CodeInsertHandler extends AbstractHandler {
 		boolean enabled = preferenceStore.getBoolean("ENABLE_INSERTION"); // Retrieve the value of the toggle button
 		boolean debug = preferenceStore.getBoolean("DEBUG_MODE");
 
-		var textEditor = Adapters.adapt(window.getActivePage().getActiveEditor(), ITextEditor.class);
+		ITextEditor textEditor = Adapters.adapt(window.getActivePage().getActiveEditor(), ITextEditor.class);
 		IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
-		var selection = Adapters.adapt(textEditor.getSelectionProvider().getSelection(), ITextSelection.class);
+		ITextSelection selection = Adapters.adapt(textEditor.getSelectionProvider().getSelection(), ITextSelection.class);
+		// TODO: Fix bug when imports are expanded: offset becomes changed to the wrong
+		// place (cursor gets moved way down)
 		int offset = selection.getOffset();
 
 		Display display = Display.getDefault();
@@ -44,14 +46,14 @@ public class CodeInsertHandler extends AbstractHandler {
 			display.asyncExec(new CodeInsertRunnable(enabled, textToInsert, document, offset, textEditor));
 		} else {
 			try {
-				InetAddress ip = InetAddress.getByName(preferenceStore.getString("SERVER_HOST"));
-				int port = 5000;
-				FauxpilotConnection conn = new FauxpilotConnectionImpl(ip, port);
+				InetSocketAddress socketAddress = new InetSocketAddress(preferenceStore.getString("SERVER_HOST"),
+						Integer.parseInt(preferenceStore.getString("SERVER_PORT")));
+				BackendConnection conn = new FauxpilotConnection(socketAddress);
 
 				String context = document.get(0, offset);
 				CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
 
-				FauxpilotConnectionImpl.parseResponse(response).thenAccept(r -> {
+				conn.parseResponse(response).thenAccept(r -> {
 					String textToInsert = MessageFormat.format("{0}", r.choices().getFirst().text());
 					display.asyncExec(new CodeInsertRunnable(enabled, textToInsert, document, offset, textEditor));
 				}).exceptionally(e -> {

@@ -35,6 +35,7 @@ public record CodeInsertRunnable(boolean enabled, String textToInsert, IDocument
 			var styleRange = new StyleRange();
 			styleRange.start = offset;
 			styleRange.length = insertedLength;
+//			System.out.println(offset);
 			styleRange.foreground = Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
 
 			// Apply the StyleRange (make the text gray)
