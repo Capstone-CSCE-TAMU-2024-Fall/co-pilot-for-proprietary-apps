@@ -17,6 +17,18 @@
                 <!-- Add more menu items here if needed -->
             </menu>
 	   </menuContribution>
+	   
+		<menuContribution
+		    locationURI="toolbar:org.eclipse.ui.trim.status">
+		    <toolbar
+		        id="com.plugin.copilotassistant.toolbar.status">
+		        <command
+		            commandId="com.plugin.copilotassistant.commands.enableCodeInsertion"
+		            style="toggle"
+		            tooltip="Enable/Disable Code Insertion">
+		        </command>
+		    </toolbar>
+		</menuContribution>
 	</extension>
 
 	<extension
@@ -25,6 +37,11 @@
 	       commandId="com.plugin.copilotassistant.commands.openPreferences"
 	       class="com.plugin.copilotassistant.handlers.OpenPreferencesHandler">
 	   </handler>
+	   
+	   <handler
+           commandId="com.plugin.copilotassistant.commands.enableCodeInsertion"
+           class="com.plugin.copilotassistant.handlers.EnableCodeInsertionHandler">
+       </handler>
 	</extension>
 	
 
@@ -43,6 +60,17 @@
 	   <command
 	      id="com.plugin.copilotassistant.commands.openPreferences"
 	      name="Open Preferences" />
+	      
+		<command
+	      id="com.plugin.copilotassistant.commands.enableCodeInsertion"
+	      style="toggle"
+	      name="Enable Code Insertion">
+	      <state
+	          id="org.eclipse.ui.commands.toggleState"
+	          class="org.eclipse.ui.handlers.RegistryToggleState" 
+	          default="false">
+	      </state>
+	   </command>
 	</extension>
 
     <extension
