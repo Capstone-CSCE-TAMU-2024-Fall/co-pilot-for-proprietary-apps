@@ -6,13 +6,18 @@ import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
+
+import com.plugin.copilotassistant.Activator;
 
 public class PluginPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
     public PluginPreferencePage() {
         super(GRID);
         // Use the default preference store from the PlatformUI
-        setPreferenceStore(PlatformUI.getPreferenceStore());
+        //setPreferenceStore(PlatformUI.getPreferenceStore());
+        setPreferenceStore(Activator.getDefault().getPreferenceStore());
     }
 
     @Override
@@ -34,6 +39,6 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 
     @Override
     public void init(IWorkbench workbench) {
-        // No specific initialization required
+        
     }
 }
