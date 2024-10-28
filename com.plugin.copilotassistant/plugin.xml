@@ -2,6 +2,10 @@
 <?eclipse version="3.4"?>
 <plugin>
 
+	<extension point="org.eclipse.ui.startup">>
+		<startup class="com.plugin.copilotassistant.Startup"/>
+	</extension>
+
 	<extension
 	    point="org.eclipse.ui.menus">
 	   <menuContribution

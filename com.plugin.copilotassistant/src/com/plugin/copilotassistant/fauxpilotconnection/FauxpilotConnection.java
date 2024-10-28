@@ -20,8 +20,8 @@ import com.plugin.copilotassistant.backendconnection.BackendConnection;
 import com.plugin.copilotassistant.backendconnection.BackendResponse;
 
 public class FauxpilotConnection implements BackendConnection {
-	Builder request;
-	HttpClient client;
+	private Builder request;
+	private HttpClient client;
 
 	public FauxpilotConnection(InetSocketAddress serverAddress) throws URISyntaxException {
 		URI uri = new URI("http", null, serverAddress.getHostName(), serverAddress.getPort(),
@@ -35,7 +35,7 @@ public class FauxpilotConnection implements BackendConnection {
 	@Override
 	public CompletableFuture<HttpResponse<String>> getResponse(String prompt) throws JsonProcessingException {
 		BodyPublisher body = BodyPublishers.ofString(
-				new ObjectMapper().writeValueAsString(new FauxpilotRequest(prompt, 200, 0.1f, new ArrayList<>())));
+				new ObjectMapper().writeValueAsString(new FauxpilotRequest(prompt, 500, 0.1f, new ArrayList<>())));
 		return this.client.sendAsync(this.request.POST(body).build(), BodyHandlers.ofString());
 	}
 

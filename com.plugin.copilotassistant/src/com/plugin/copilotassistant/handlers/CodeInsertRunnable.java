@@ -44,6 +44,9 @@ public record CodeInsertRunnable(boolean enabled, String textToInsert, IDocument
 			// Move the cursor to the end of the inserted text
 			styledText.setCaretOffset(offset + insertedLength);
 
+//			styledText.getCaretOffset();
+//			styledText.getLocationAtOffset(offset);
+
 			if (enabled) {
 				// Add a listener for key events after insertion
 				styledText

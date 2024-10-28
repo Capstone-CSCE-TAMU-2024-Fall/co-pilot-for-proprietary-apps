@@ -2,7 +2,6 @@ package com.plugin.copilotassistant.handlers;
 
 import java.net.InetSocketAddress;
 import java.net.http.HttpResponse;
-import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -30,18 +29,30 @@ public class CodeInsertHandler extends AbstractHandler {
 		// Retrieve the preference value from the preference store
 		IPreferenceStore preferenceStore = PlatformUI.getPreferenceStore();
 		boolean enabled = preferenceStore.getBoolean("ENABLE_INSERTION"); // Retrieve the value of the toggle button
-		boolean debug = preferenceStore.getBoolean("DEBUG_MODE");
 
 		ITextEditor textEditor = Adapters.adapt(window.getActivePage().getActiveEditor(), ITextEditor.class);
+//		System.out.println("Adding listener");
+
+//		ITextViewer viewer = Adapters.adapt(textEditor, ITextViewer.class);
+//		StyledText widget = viewer.getTextWidget();
+//		widget.addCaretListener(null);
+
 		IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
-		ITextSelection selection = Adapters.adapt(textEditor.getSelectionProvider().getSelection(), ITextSelection.class);
-		// TODO: Fix bug when imports are expanded: offset becomes changed to the wrong
+		ITextSelection selection = Adapters.adapt(textEditor.getSelectionProvider().getSelection(),
+				ITextSelection.class);
+
+//		document.addDocumentListener(null);
+//		documentListeners.put(textEditor, listener);
+
+		// TODO: Fix bug when imports are collapsed: offset becomes changed to the wrong
 		// place (cursor gets moved way down)
+		// If I want to convert from document offset to StyledText widget offset, look
+		// at ITextViewerExtension5
 		int offset = selection.getOffset();
 
 		Display display = Display.getDefault();
 
-		if (debug) {
+		if (preferenceStore.getBoolean("DEBUG_MODE")) {
 			String textToInsert = "Test";
 			display.asyncExec(new CodeInsertRunnable(enabled, textToInsert, document, offset, textEditor));
 		} else {
@@ -54,7 +65,7 @@ public class CodeInsertHandler extends AbstractHandler {
 				CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
 
 				conn.parseResponse(response).thenAccept(r -> {
-					String textToInsert = MessageFormat.format("{0}", r.choices().getFirst().text());
+					String textToInsert = r.choices().getFirst().text();
 					display.asyncExec(new CodeInsertRunnable(enabled, textToInsert, document, offset, textEditor));
 				}).exceptionally(e -> {
 					e.printStackTrace();
@@ -64,7 +75,6 @@ public class CodeInsertHandler extends AbstractHandler {
 				e.printStackTrace();
 				return null;
 			}
-//				System.out.println(context);
 		}
 
 		return null;

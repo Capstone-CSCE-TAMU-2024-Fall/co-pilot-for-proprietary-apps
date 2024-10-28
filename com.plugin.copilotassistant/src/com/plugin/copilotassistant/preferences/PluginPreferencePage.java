@@ -2,6 +2,7 @@ package com.plugin.copilotassistant.preferences;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -20,12 +21,12 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 		// Add fields for your preferences
 		addField(new StringFieldEditor("SERVER_HOST", "Server Host:", getFieldEditorParent()));
 		addField(new StringFieldEditor("SERVER_PORT", "Server Port:", getFieldEditorParent()));
-		addField(new StringFieldEditor("MAX_TOKENS", "Max Tokens:", getFieldEditorParent()));
-		addField(new StringFieldEditor("MAX_LINES", "Max Lines:", getFieldEditorParent()));
+		addField(new IntegerFieldEditor("MAX_TOKENS", "Max Tokens:", getFieldEditorParent()));
+		addField(new IntegerFieldEditor("MAX_LINES", "Max Lines:", getFieldEditorParent()));
 		addField(new StringFieldEditor("ENGINE", "Engine:", getFieldEditorParent()));
 		addField(new StringFieldEditor("MODEL", "Model:", getFieldEditorParent()));
 		addField(new StringFieldEditor("TEMPERATURE", "Temperature:", getFieldEditorParent()));
-		addField(new StringFieldEditor("SUGGESTION_DELAY", "Suggestion Delay (ms):", getFieldEditorParent()));
+		addField(new IntegerFieldEditor("SUGGESTION_DELAY", "Suggestion Delay (ms):", getFieldEditorParent()));
 
 		// Add a Boolean (Toggle Button) field for your preferences
 		addField(new BooleanFieldEditor("ENABLE_INSERTION", "Enable Code Insertion", getFieldEditorParent()));
