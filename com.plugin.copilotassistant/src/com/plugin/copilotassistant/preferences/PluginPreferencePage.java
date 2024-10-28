@@ -33,6 +33,7 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 		// Add a Boolean (Toggle Button) field for your preferences
 		addField(new BooleanFieldEditor("ENABLE_INSERTION", "Enable Code Insertion", getFieldEditorParent()));
 		addField(new BooleanFieldEditor("DEBUG_MODE", "Debug Mode", getFieldEditorParent()));
+	}
 
     @Override
     public void init(IWorkbench workbench) {

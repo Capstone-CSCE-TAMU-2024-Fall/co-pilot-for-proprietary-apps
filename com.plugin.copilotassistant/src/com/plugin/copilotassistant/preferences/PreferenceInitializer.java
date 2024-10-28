@@ -14,6 +14,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
         
         // Set default values
         store.setDefault("SERVER_HOST", "localhost");
+        store.setDefault("SERVER_PORT", "5000");
         store.setDefault("MAX_TOKENS", "4096");
         store.setDefault("MAX_LINES", "20");
         store.setDefault("ENGINE", "davinci");
