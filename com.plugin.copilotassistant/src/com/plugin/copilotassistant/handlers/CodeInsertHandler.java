@@ -14,9 +14,10 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
 import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
@@ -25,10 +26,11 @@ public class CodeInsertHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		System.out.println("exectuing");
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 
 		// Retrieve the preference value from the preference store
-		IPreferenceStore preferenceStore = PlatformUI.getPreferenceStore();
+		IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
 		boolean enabled = preferenceStore.getBoolean("ENABLE_INSERTION"); // Retrieve the value of the toggle button
 		boolean debug = preferenceStore.getBoolean("DEBUG_MODE");
 
