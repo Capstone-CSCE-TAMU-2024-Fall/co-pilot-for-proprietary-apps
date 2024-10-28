@@ -30,8 +30,7 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 		addField(new StringFieldEditor("TEMPERATURE", "Temperature:", getFieldEditorParent()));
 		addField(new StringFieldEditor("SUGGESTION_DELAY", "Suggestion Delay (ms):", getFieldEditorParent()));
 
-		// Add a Boolean (Toggle Button) field for your preferences
-		addField(new BooleanFieldEditor("ENABLE_INSERTION", "Enable Code Insertion", getFieldEditorParent()));
+		// Add a Boolean field for your preferences
 		addField(new BooleanFieldEditor("DEBUG_MODE", "Debug Mode", getFieldEditorParent()));
 	}
 
