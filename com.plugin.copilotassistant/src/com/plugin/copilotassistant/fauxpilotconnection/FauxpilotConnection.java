@@ -14,6 +14,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
@@ -22,6 +26,7 @@ import com.plugin.copilotassistant.backendconnection.BackendResponse;
 public class FauxpilotConnection implements BackendConnection {
 	Builder request;
 	HttpClient client;
+	IPreferenceStore preferenceStore;
 
 	public FauxpilotConnection(InetSocketAddress serverAddress) throws URISyntaxException {
 		URI uri = new URI("http", null, serverAddress.getHostName(), serverAddress.getPort(),
@@ -30,12 +35,19 @@ public class FauxpilotConnection implements BackendConnection {
 		this.request = HttpRequest.newBuilder().version(HttpClient.Version.HTTP_1_1).uri(uri)
 				.timeout(Duration.ofSeconds(3))
 				.headers("Content-Type", "application/json", "Accept", "application/json");
+		
+		this.preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
 	}
 
 	@Override
 	public CompletableFuture<HttpResponse<String>> getResponse(String prompt) throws JsonProcessingException {
+		
+		int maxTokens = Integer.parseInt(preferenceStore.getString("MAX_TOKENS"));
+		float temperature = Float.parseFloat(preferenceStore.getString("TEMPERATURE"));
+		System.out.println("max tokens: " + maxTokens + ", temperature: " + temperature);
+		
 		BodyPublisher body = BodyPublishers.ofString(
-				new ObjectMapper().writeValueAsString(new FauxpilotRequest(prompt, 200, 0.1f, new ArrayList<>())));
+				new ObjectMapper().writeValueAsString(new FauxpilotRequest(prompt, maxTokens, temperature, new ArrayList<>())));
 		return this.client.sendAsync(this.request.POST(body).build(), BodyHandlers.ofString());
 	}
 
