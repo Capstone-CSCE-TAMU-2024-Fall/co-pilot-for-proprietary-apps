@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-public record CodeInsertRunnable(boolean enabled, String textToInsert, IDocument document, int offset,
+public record CodeInsertRunnable(boolean enabled, String textToInsert, int offset,
 		ITextEditor textEditor) implements Runnable {
 
 	@Override
@@ -20,6 +20,8 @@ public record CodeInsertRunnable(boolean enabled, String textToInsert, IDocument
 			actualTextToInsert = textToInsert;
 		}
 
+		IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
+		
 		try {
 			document.replace(offset, 0, actualTextToInsert);
 		} catch (BadLocationException e) {
@@ -28,7 +30,7 @@ public record CodeInsertRunnable(boolean enabled, String textToInsert, IDocument
 		}
 		// Get the StyledText widget
 		var styledText = Adapters.adapt(Adapters.adapt(textEditor, Control.class), StyledText.class);
-
+		System.out.println("styledText in Runnable: " + styledText);
 		if (styledText != null) {
 			// Create a StyleRange to apply the gray color
 			int insertedLength = actualTextToInsert.length();
