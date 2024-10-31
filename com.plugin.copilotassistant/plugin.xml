@@ -25,6 +25,7 @@
 		        <command
 		            commandId="com.plugin.copilotassistant.commands.enableCodeInsertion"
 		            style="toggle"
+		            icon="icons/button.png"
 		            tooltip="Enable/Disable Code Insertion">
 		        </command>
 		    </toolbar>
