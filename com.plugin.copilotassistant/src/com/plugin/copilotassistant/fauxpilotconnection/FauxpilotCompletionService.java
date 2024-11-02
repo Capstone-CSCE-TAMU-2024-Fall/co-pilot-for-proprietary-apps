@@ -117,6 +117,9 @@ public class FauxpilotCompletionService implements TextCompletionService {
 					try {
 						int offset = selection.getOffset();
 						String context = document.get(0, offset);
+						if (conn == null) {
+							connect();
+						}
 						CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
 						conn.parseResponse(response).thenAccept(r -> {
 							String textToInsert = r.choices().getFirst().text();
@@ -130,7 +133,7 @@ public class FauxpilotCompletionService implements TextCompletionService {
 							e.printStackTrace();
 							return null;
 						}).join();
-					} catch (JsonProcessingException | BadLocationException e) {
+					} catch (JsonProcessingException | BadLocationException | URISyntaxException e) {
 						e.printStackTrace();
 					}
 				});
