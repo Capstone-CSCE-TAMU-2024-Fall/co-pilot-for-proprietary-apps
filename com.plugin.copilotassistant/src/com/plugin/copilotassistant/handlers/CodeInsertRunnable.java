@@ -30,7 +30,6 @@ public record CodeInsertRunnable(boolean enabled, String textToInsert, int offse
 		}
 		// Get the StyledText widget
 		var styledText = Adapters.adapt(Adapters.adapt(textEditor, Control.class), StyledText.class);
-		System.out.println("styledText in Runnable: " + styledText);
 		if (styledText != null) {
 			// Create a StyleRange to apply the gray color
 			int insertedLength = actualTextToInsert.length();
@@ -45,10 +44,6 @@ public record CodeInsertRunnable(boolean enabled, String textToInsert, int offse
 
 			// Move the cursor to the end of the inserted text
 			styledText.setCaretOffset(offset + insertedLength);
-
-//			styledText.getCaretOffset();
-//			styledText.getLocationAtOffset(offset);
-
 			if (enabled) {
 				// Add a listener for key events after insertion
 				styledText

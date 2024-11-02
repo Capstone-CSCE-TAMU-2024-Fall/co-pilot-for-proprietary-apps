@@ -3,7 +3,6 @@ package com.plugin.copilotassistant.fauxpilotconnection;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
-
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -35,13 +34,12 @@ public class FauxpilotConnection implements BackendConnection {
 		this.request = HttpRequest.newBuilder().version(HttpClient.Version.HTTP_1_1).uri(uri)
 				.timeout(Duration.ofSeconds(3))
 				.headers("Content-Type", "application/json", "Accept", "application/json");
-
+    
 		this.preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
 	}
 
 	@Override
 	public CompletableFuture<HttpResponse<String>> getResponse(String prompt) throws JsonProcessingException {
-
 		int maxTokens = preferenceStore.getInt("MAX_TOKENS");
 		float temperature = Float.parseFloat(preferenceStore.getString("TEMPERATURE"));
 		System.out.println("max tokens: " + maxTokens + ", temperature: " + temperature);

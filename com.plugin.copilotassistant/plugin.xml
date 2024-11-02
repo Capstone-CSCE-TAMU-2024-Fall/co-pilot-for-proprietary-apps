@@ -17,6 +17,15 @@
 
 	
 	<extension
+	     point="org.eclipse.core.runtime.preferences">
+	   <initializer
+	         class="com.plugin.copilotassistant.preferences.PreferenceInitializer">
+	   </initializer>
+	</extension>
+	
+
+	
+	<extension
 	    point="org.eclipse.ui.menus">
 	   <menuContribution
 	       locationURI="menu:org.eclipse.ui.main.menu?after=window"> 
