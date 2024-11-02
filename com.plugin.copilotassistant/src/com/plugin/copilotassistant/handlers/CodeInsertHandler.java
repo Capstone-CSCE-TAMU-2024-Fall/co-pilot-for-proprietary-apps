@@ -45,19 +45,10 @@ public class CodeInsertHandler extends AbstractHandler {
 		boolean debug = preferenceStore.getBoolean("DEBUG_MODE");
 
 		ITextEditor textEditor = Adapters.adapt(window.getActivePage().getActiveEditor(), ITextEditor.class);
-//		System.out.println("Adding listener");
-
-//		ITextViewer viewer = Adapters.adapt(textEditor, ITextViewer.class);
-//		StyledText widget = viewer.getTextWidget();
-//		widget.addCaretListener(null);
-
 		IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
 		ITextSelection selection = Adapters.adapt(textEditor.getSelectionProvider().getSelection(),
 				ITextSelection.class);
 		int offset = selection.getOffset();
-
-//		document.addDocumentListener(null);
-//		documentListeners.put(textEditor, listener);
 
 		// TODO: Fix bug when imports are collapsed: offset becomes changed to the wrong
 		// place (cursor gets moved way down)
@@ -65,7 +56,7 @@ public class CodeInsertHandler extends AbstractHandler {
 		// at ITextViewerExtension5
 
 		Display display = Display.getDefault();
-
+		System.out.println("Code insert handler");
 		if (debug) {
 			String textToInsert = "Test";
 			display.asyncExec(new CodeInsertRunnable(enabled, textToInsert, offset, textEditor));

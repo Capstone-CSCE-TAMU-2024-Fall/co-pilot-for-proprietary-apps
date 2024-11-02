@@ -42,7 +42,7 @@ public class FauxpilotConnection implements BackendConnection {
 	@Override
 	public CompletableFuture<HttpResponse<String>> getResponse(String prompt) throws JsonProcessingException {
 
-		int maxTokens = Integer.parseInt(preferenceStore.getString("MAX_TOKENS"));
+		int maxTokens = preferenceStore.getInt("MAX_TOKENS");
 		float temperature = Float.parseFloat(preferenceStore.getString("TEMPERATURE"));
 		System.out.println("max tokens: " + maxTokens + ", temperature: " + temperature);
 

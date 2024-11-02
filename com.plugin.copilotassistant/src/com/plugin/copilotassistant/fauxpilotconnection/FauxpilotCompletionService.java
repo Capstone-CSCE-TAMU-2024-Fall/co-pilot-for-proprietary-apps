@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -23,6 +24,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -69,7 +71,7 @@ public class FauxpilotCompletionService implements TextCompletionService {
 
 	@Override
 	public void connect() throws URISyntaxException {
-		IPreferenceStore preferenceStore = PlatformUI.getPreferenceStore();
+		IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
 		InetSocketAddress socketAddress = new InetSocketAddress(preferenceStore.getString("SERVER_HOST"),
 				Integer.parseInt(preferenceStore.getString("SERVER_PORT")));
 		conn = new FauxpilotConnection(socketAddress);
@@ -98,7 +100,7 @@ public class FauxpilotCompletionService implements TextCompletionService {
 			System.out.println("textRenderer: " + textRenderer);
 
 			textRenderer.cleanupPainting();
-			IPreferenceStore preferenceStore = PlatformUI.getPreferenceStore();
+			IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
 			if (preferenceStore.getBoolean("DEBUG_MODE")) {
 
 				job = Job.create("Trigger", monitor -> {
