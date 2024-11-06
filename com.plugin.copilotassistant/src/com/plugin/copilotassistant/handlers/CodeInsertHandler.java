@@ -2,7 +2,6 @@ package com.plugin.copilotassistant.handlers;
 
 import java.net.InetSocketAddress;
 import java.net.http.HttpResponse;
-import java.text.MessageFormat;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -20,6 +19,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
 import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
@@ -28,6 +29,7 @@ public class CodeInsertHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
+		System.out.println("exectuing");
 		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 		
 		// boolean enabled = EnableCodeInsertionHandler.isEnabled; // Retrieve the value of the toggle button
@@ -39,21 +41,25 @@ public class CodeInsertHandler extends AbstractHandler {
 
         
 		// Retrieve the preference value from the preference store
-		IPreferenceStore preferenceStore = PlatformUI.getPreferenceStore();
+		IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
 		boolean debug = preferenceStore.getBoolean("DEBUG_MODE");
 
 		ITextEditor textEditor = Adapters.adapt(window.getActivePage().getActiveEditor(), ITextEditor.class);
 		IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
-		ITextSelection selection = Adapters.adapt(textEditor.getSelectionProvider().getSelection(), ITextSelection.class);
-		// TODO: Fix bug when imports are expanded: offset becomes changed to the wrong
-		// place (cursor gets moved way down)
+		ITextSelection selection = Adapters.adapt(textEditor.getSelectionProvider().getSelection(),
+				ITextSelection.class);
 		int offset = selection.getOffset();
 
-		Display display = Display.getDefault();
+		// TODO: Fix bug when imports are collapsed: offset becomes changed to the wrong
+		// place (cursor gets moved way down)
+		// If I want to convert from document offset to StyledText widget offset, look
+		// at ITextViewerExtension5
 
+		Display display = Display.getDefault();
+		System.out.println("Code insert handler");
 		if (debug) {
 			String textToInsert = "Test";
-			display.asyncExec(new CodeInsertRunnable(enabled, textToInsert, document, offset, textEditor));
+			display.asyncExec(new CodeInsertRunnable(enabled, textToInsert, offset, textEditor));
 		} else {
 			try {
 				InetSocketAddress socketAddress = new InetSocketAddress(preferenceStore.getString("SERVER_HOST"),
@@ -64,8 +70,8 @@ public class CodeInsertHandler extends AbstractHandler {
 				CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
 
 				conn.parseResponse(response).thenAccept(r -> {
-					String textToInsert = MessageFormat.format("{0}", r.choices().getFirst().text());
-					display.asyncExec(new CodeInsertRunnable(enabled, textToInsert, document, offset, textEditor));
+					String textToInsert = r.choices().getFirst().text();
+					display.asyncExec(new CodeInsertRunnable(enabled, textToInsert, offset, textEditor));
 				}).exceptionally(e -> {
 					e.printStackTrace();
 					return null;
