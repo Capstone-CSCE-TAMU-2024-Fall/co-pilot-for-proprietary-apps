@@ -55,6 +55,7 @@ public class EnableCodeInsertionHandler extends AbstractHandler implements IElem
         }
         
         element.setIcon(icon);
+        System.out.println("Icon set: " + iconPath);
 
         // Optionally, update tooltip text to indicate the current state
         String tooltip = isEnabled ? "Disable Code Insertion" : "Enable Code Insertion";
