@@ -40,6 +40,8 @@ public class FauxpilotCompletionService implements TextCompletionService {
 	private BackendConnection conn;
 	private Map<ITextViewer, TextRenderer> textRenderers = new HashMap<>();
 	private Job job;
+	private static String lastTextToInsert;
+	private static int insertOffset;
 
 	private static class LazyHolder {
 		private static final TextCompletionService INSTANCE = new FauxpilotCompletionService();
@@ -48,6 +50,22 @@ public class FauxpilotCompletionService implements TextCompletionService {
 	public static TextCompletionService getInstance() {
 		return LazyHolder.INSTANCE;
 	}
+	
+    public static String getLastTextToInsert() {
+        return lastTextToInsert;
+    }
+
+    public static void setLastTextToInsert(String textToInsert) {
+        lastTextToInsert = textToInsert;
+    }
+    
+    public static int getInsertOffset() {
+        return insertOffset;
+    }
+	
+    public static void setInsertOffset(int offset) {
+    	insertOffset = offset;
+    }
 
 	@Override
 	public void registerRenderer(ITextViewer textViewer, TextRenderer textRenderer) {
@@ -105,7 +123,8 @@ public class FauxpilotCompletionService implements TextCompletionService {
 
 				job = Job.create("Trigger", monitor -> {
 					System.out.println("Running job");
-					String textToInsert = "Test";
+					FauxpilotCompletionService.setLastTextToInsert("Test");
+					FauxpilotCompletionService.setInsertOffset(selection.getOffset());
 					display.asyncExec(new Runnable() {
 						public void run() {
 							textRenderer.cleanupPainting();
@@ -119,6 +138,7 @@ public class FauxpilotCompletionService implements TextCompletionService {
 					System.out.println("Running job");
 					try {
 						int offset = selection.getOffset();
+						FauxpilotCompletionService.setInsertOffset(offset);
 						String context = document.get(0, offset);
 						if (conn == null) {
 							connect();
@@ -126,6 +146,7 @@ public class FauxpilotCompletionService implements TextCompletionService {
 						CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
 						conn.parseResponse(response).thenAccept(r -> {
 							String textToInsert = r.choices().getFirst().text();
+							FauxpilotCompletionService.setLastTextToInsert(textToInsert);
 							display.asyncExec(new Runnable() {
 								public void run() {
 									textRenderer.cleanupPainting();
