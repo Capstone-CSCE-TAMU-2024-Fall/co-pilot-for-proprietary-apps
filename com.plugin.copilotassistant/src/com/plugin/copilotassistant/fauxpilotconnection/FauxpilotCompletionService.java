@@ -16,9 +16,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.ITextViewerExtension2;
-import org.eclipse.jface.text.TextViewer;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -31,17 +30,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plugin.copilotassistant.TextRenderer;
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
 import com.plugin.copilotassistant.backendconnection.TextCompletionService;
-import com.plugin.copilotassistant.handlers.CodeInsertRunnable;
 
-// Acts as the controller, calling the TextRenderer when necessary 
+// Acts as the controller, calling the TextRenderer when necessary
 // with the responses that this class gets.
 public class FauxpilotCompletionService implements TextCompletionService {
 
 	private BackendConnection conn;
 	private Map<ITextViewer, TextRenderer> textRenderers = new HashMap<>();
 	private Job job;
-	private static String lastTextToInsert;
-	private static int insertOffset;
+	private String lastTextToInsert;
+	private int insertOffset;
 
 	private static class LazyHolder {
 		private static final TextCompletionService INSTANCE = new FauxpilotCompletionService();
@@ -50,22 +48,6 @@ public class FauxpilotCompletionService implements TextCompletionService {
 	public static TextCompletionService getInstance() {
 		return LazyHolder.INSTANCE;
 	}
-	
-    public static String getLastTextToInsert() {
-        return lastTextToInsert;
-    }
-
-    public static void setLastTextToInsert(String textToInsert) {
-        lastTextToInsert = textToInsert;
-    }
-    
-    public static int getInsertOffset() {
-        return insertOffset;
-    }
-	
-    public static void setInsertOffset(int offset) {
-    	insertOffset = offset;
-    }
 
 	@Override
 	public void registerRenderer(ITextViewer textViewer, TextRenderer textRenderer) {
@@ -89,7 +71,8 @@ public class FauxpilotCompletionService implements TextCompletionService {
 
 	@Override
 	public void connect() throws URISyntaxException {
-		IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
+		IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
+				"com.plugin.copilotassistant");
 		InetSocketAddress socketAddress = new InetSocketAddress(preferenceStore.getString("SERVER_HOST"),
 				Integer.parseInt(preferenceStore.getString("SERVER_PORT")));
 		conn = new FauxpilotConnection(socketAddress);
@@ -118,42 +101,41 @@ public class FauxpilotCompletionService implements TextCompletionService {
 			System.out.println("textRenderer: " + textRenderer);
 
 			textRenderer.cleanupPainting();
-			IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
+			IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
+					"com.plugin.copilotassistant");
 			if (preferenceStore.getBoolean("DEBUG_MODE")) {
 
 				job = Job.create("Trigger", monitor -> {
 					System.out.println("Running job");
-					FauxpilotCompletionService.setLastTextToInsert("Test");
-					FauxpilotCompletionService.setInsertOffset(selection.getOffset());
-					display.asyncExec(new Runnable() {
-						public void run() {
-							textRenderer.cleanupPainting();
-							textRenderer.setupPainting(textToInsert);
-							styledText.redraw();
-						}
+					lastTextToInsert = "Test";
+					insertOffset = selection.getOffset();
+					display.asyncExec(() -> {
+						textRenderer.cleanupPainting();
+						textRenderer.setupPainting(lastTextToInsert);
+						styledText.redraw();
 					});
 				});
 			} else {
 				job = Job.create("Trigger", monitor -> {
 					System.out.println("Running job");
 					try {
-						int offset = selection.getOffset();
-						FauxpilotCompletionService.setInsertOffset(offset);
-						String context = document.get(0, offset);
+						insertOffset = selection.getOffset();
+						String context = document.get(0, insertOffset);
 						if (conn == null) {
 							connect();
 						}
 						CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
 						conn.parseResponse(response).thenAccept(r -> {
-							String textToInsert = r.choices().getFirst().text();
-							FauxpilotCompletionService.setLastTextToInsert(textToInsert);
-							display.asyncExec(new Runnable() {
-								public void run() {
+							if (!monitor.isCanceled()) {
+								lastTextToInsert = r.choices().getFirst().text();
+								System.out.println("set lastTextToInsert: " + lastTextToInsert);
+								display.asyncExec(() -> {
 									textRenderer.cleanupPainting();
-									textRenderer.setupPainting(textToInsert);
+									textRenderer.setupPainting(lastTextToInsert);
 									styledText.redraw();
-								}
-							});
+
+								});
+							}
 						}).exceptionally(e -> {
 							e.printStackTrace();
 							return null;
@@ -169,13 +151,45 @@ public class FauxpilotCompletionService implements TextCompletionService {
 		}
 	}
 
-	// Need to trigger only when the caret movement was not caused by typing a new
-	// character
+	@Override
+	public boolean accept() {
+		System.out.println("current lastTextToInsert: " + lastTextToInsert);
+
+		if (lastTextToInsert.isEmpty()) {
+			return false;
+		}
+
+		ITextEditor textEditor = getTextEditor();
+
+		if (textEditor != null) {
+			System.out.println("textEditor is not null: " + textEditor);
+			if (job != null) {
+				job.cancel();
+			}
+
+			IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
+			try {
+				ITextSelection selection = new TextSelection(insertOffset + lastTextToInsert.length() + 1, 0);
+				System.out.println("inserted " + lastTextToInsert);
+				document.replace(insertOffset + 1, 0, lastTextToInsert);
+				textEditor.getSelectionProvider().setSelection(selection);
+				return true;
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+
+		}
+
+		System.out.println("textEditor is null: " + textEditor);
+		return false;
+	}
+
 	@Override
 	public void dismiss() {
 		ITextEditor textEditor = getTextEditor();
 
 		if (textEditor != null) {
+
 			if (job != null) {
 				job.cancel();
 			}
@@ -183,6 +197,9 @@ public class FauxpilotCompletionService implements TextCompletionService {
 			ITextViewer textViewer = Adapters.adapt(textEditor, ITextViewer.class);
 			TextRenderer textRenderer = textRenderers.get(textViewer);
 			textRenderer.cleanupPainting();
+			System.out.println("Resetting " + lastTextToInsert);
+			lastTextToInsert = "";
+			insertOffset = -1;
 		}
 	}
 

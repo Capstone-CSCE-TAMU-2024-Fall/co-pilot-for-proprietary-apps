@@ -9,7 +9,7 @@ import com.plugin.copilotassistant.backendconnection.TextCompletionChoice;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public record FauxpilotResponse(String id, String model, String object, int created, List<TextCompletionChoice> choices,
-		TextCompletionUsage usage) implements BackendResponse{
+		TextCompletionUsage usage) implements BackendResponse {
 
 	public FauxpilotResponse() {
 		this("", "", "", 0, new ArrayList<>(), new TextCompletionUsage());
