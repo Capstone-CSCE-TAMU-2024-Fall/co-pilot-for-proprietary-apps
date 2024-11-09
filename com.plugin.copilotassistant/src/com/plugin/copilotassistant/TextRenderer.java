@@ -340,18 +340,6 @@ public class TextRenderer implements IPainter, PaintListener {
 		}
 	}
 
-	private void paintText(GC gc) {
-		StyledText styledText = viewer.getTextWidget();
-		int caretOffset = styledText.getCaretOffset();
-		try {
-			Point location = styledText.getLocationAtOffset(caretOffset);
-			gc.drawString("Test", location.x, location.y, true);
-		} catch (IllegalArgumentException ex) {
-			// Handle out of bounds offsets
-			System.out.println("Out of bounds offset: " + caretOffset);
-		}
-	}
-
 	static final Pattern PATTERN_LEADING_TABS = Pattern.compile("^(\\t*)(.*)$");
 
 	private static TextWithTabs splitLeadingTabs(String text) {
