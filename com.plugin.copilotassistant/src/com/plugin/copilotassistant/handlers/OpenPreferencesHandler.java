@@ -8,16 +8,16 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
 public class OpenPreferencesHandler extends AbstractHandler {
-    @Override
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        // Open the preferences dialog and navigate to your specific preferences page
-        PreferenceDialog prefDialog = PreferencesUtil.createPreferenceDialogOn(
-            PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
-            "com.plugin.copilotassistant.preferences.PluginPreferencePage", // ID of your preferences page
-            null, null);
-        if (prefDialog != null) {
-            prefDialog.open();
-        }
-        return null;
-    }
+	@Override
+	public Object execute(ExecutionEvent event) throws ExecutionException {
+		// Open the preferences dialog and navigate to your specific preferences page
+		PreferenceDialog prefDialog = PreferencesUtil.createPreferenceDialogOn(
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+				"com.plugin.copilotassistant.preferences.PluginPreferencePage", // ID of your preferences page
+				null, null);
+		if (prefDialog != null) {
+			prefDialog.open();
+		}
+		return null;
+	}
 }

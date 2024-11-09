@@ -3,8 +3,6 @@ package com.plugin.copilotassistant.backendconnection;
 import java.net.URISyntaxException;
 
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.TextViewer;
-import org.eclipse.swt.custom.StyledText;
 
 import com.plugin.copilotassistant.TextRenderer;
 
@@ -16,6 +14,8 @@ public interface TextCompletionService {
 	void connect() throws URISyntaxException;
 
 	void trigger();
-	
+
+	boolean accept();
+
 	void dismiss();
 }
