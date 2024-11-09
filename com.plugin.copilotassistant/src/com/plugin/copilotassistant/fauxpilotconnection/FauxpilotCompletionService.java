@@ -108,6 +108,7 @@ public class FauxpilotCompletionService implements TextCompletionService {
 					String textToInsert = "Test";
 					display.asyncExec(new Runnable() {
 						public void run() {
+							textRenderer.cleanupPainting();
 							textRenderer.setupPainting(textToInsert);
 							styledText.redraw();
 						}
@@ -127,6 +128,7 @@ public class FauxpilotCompletionService implements TextCompletionService {
 							String textToInsert = r.choices().getFirst().text();
 							display.asyncExec(new Runnable() {
 								public void run() {
+									textRenderer.cleanupPainting();
 									textRenderer.setupPainting(textToInsert);
 									styledText.redraw();
 								}
