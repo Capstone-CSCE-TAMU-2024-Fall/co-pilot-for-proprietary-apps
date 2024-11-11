@@ -15,11 +15,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import com.plugin.copilotassistant.backendconnection.TextCompletionService;
-import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotCompletionService;
-
 public class EditorActivationListener implements IPartListener2 {
-	private Map<IWorkbenchPartReference, TextCompletionTrigger> suggestionTriggers = new HashMap<>();
+	private Map<IWorkbenchPartReference, TextCompletionListener> suggestionTriggers = new HashMap<>();
 
 	public void registerEditorActivationListener() {
 		// Get the active workbench page
@@ -41,10 +38,10 @@ public class EditorActivationListener implements IPartListener2 {
 							styledText.getDisplay().asyncExec(() -> {
 								styledText.addPaintListener(textRenderer);
 							});
-							FauxpilotCompletionService.getInstance().registerRenderer(textViewer, textRenderer);
+							TextCompletionService.getInstance().registerRenderer(textViewer, textRenderer);
 						}
 
-						TextCompletionTrigger suggestionTrigger = new TextCompletionTrigger();
+						TextCompletionListener suggestionTrigger = new TextCompletionListener();
 						suggestionTrigger.register(textEditor);
 					}
 				}
@@ -78,10 +75,10 @@ public class EditorActivationListener implements IPartListener2 {
 			System.out.println("textViewer: " + textViewer);
 
 			TextRenderer textRenderer = new TextRenderer(textViewer);
-			FauxpilotCompletionService.getInstance().registerRenderer(textViewer, textRenderer);
+			TextCompletionService.getInstance().registerRenderer(textViewer, textRenderer);
 
 			ITextEditor textEditor = Adapters.adapt(activeEditor, ITextEditor.class);
-			TextCompletionTrigger suggestionTrigger = new TextCompletionTrigger();
+			TextCompletionListener suggestionTrigger = new TextCompletionListener();
 			suggestionTrigger.register(textEditor);
 			suggestionTriggers.put(partRef, suggestionTrigger);
 		}
@@ -103,11 +100,11 @@ public class EditorActivationListener implements IPartListener2 {
 			textViewer = Adapters.adapt(activeEditor, ITextViewer.class);
 			System.out.println("textViewer: " + textViewer);
 
-			TextCompletionService textCompletionService = FauxpilotCompletionService.getInstance();
+			TextCompletionService textCompletionService = TextCompletionService.getInstance();
 			textCompletionService.unregisterRenderer(textViewer);
 
 			ITextEditor textEditor = Adapters.adapt(activeEditor, ITextEditor.class);
-			TextCompletionTrigger textCompletionTrigger = suggestionTriggers.get(partRef);
+			TextCompletionListener textCompletionTrigger = suggestionTriggers.get(partRef);
 			if (textCompletionTrigger != null) {
 				textCompletionTrigger.unregister(textEditor);
 			}
