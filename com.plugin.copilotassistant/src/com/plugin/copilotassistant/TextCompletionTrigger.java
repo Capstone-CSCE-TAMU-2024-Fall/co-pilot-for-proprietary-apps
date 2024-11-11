@@ -51,19 +51,33 @@ public class TextCompletionTrigger implements CaretListener, VerifyKeyListener {
 
 	@Override
 	public void verifyKey(VerifyEvent event) {
-		if (event.character == 0 && (event.keyCode & SWT.KEYCODE_BIT) == 0)
+		if (event.character == 0 && (event.keyCode & SWT.KEYCODE_BIT) == 0) {
 			return;
+		}
 
 		if (event.character != 0
-				&& (event.stateMask == SWT.ALT || event.stateMask == SWT.CONTROL || event.stateMask == SWT.COMMAND))
+				&& (event.stateMask == SWT.ALT || event.stateMask == SWT.CONTROL || event.stateMask == SWT.COMMAND)) {
 			return;
-//		boolean isValidKey = Character.isLetterOrDigit(event.character) || Character.isWhitespace(event.character);
-//		System.out.println("isValid: " + isValid);
-//		System.out.println("Character: " + event.character);
+		}
+
+		TextCompletionService textCompletionService = FauxpilotCompletionService.getInstance();
+
+		if (event.keyCode == SWT.ESC) {
+			textCompletionService.dismiss();
+			return;
+		}
+
 		System.out.println("KeyCode: " + event.keyCode);
-		boolean isValidKey = !(event.keyCode >= SWT.ARROW_UP && event.keyCode <= SWT.ARROW_RIGHT);
-		if (isValidKey) {
-			TextCompletionService textCompletionService = FauxpilotCompletionService.getInstance();
+		boolean isArrowKey = event.keyCode >= SWT.ARROW_UP && event.keyCode <= SWT.ARROW_RIGHT;
+		boolean accept = false;
+
+		if (event.keyCode == SWT.TAB) {
+			accept = textCompletionService.accept();
+		}
+
+		if (accept) {
+			event.doit = false;
+		} else if (!isArrowKey) {
 			textCompletionService.trigger();
 			justTriggered = true;
 		}

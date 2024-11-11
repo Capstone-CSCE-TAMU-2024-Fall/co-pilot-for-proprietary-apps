@@ -23,9 +23,9 @@ public class EnableCodeInsertionHandler extends AbstractHandler implements IElem
     @Override
     public Object execute(ExecutionEvent event) throws ExecutionException {      
 
-        ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
-        Command command = commandService.getCommand("com.plugin.copilotassistant.commands.enableCodeInsertion");
-        State state = command.getState("org.eclipse.ui.commands.toggleState");        
+		ICommandService commandService = PlatformUI.getWorkbench().getService(ICommandService.class);
+		Command command = commandService.getCommand("com.plugin.copilotassistant.commands.enableCodeInsertion");
+		State state = command.getState("org.eclipse.ui.commands.toggleState");
 
         boolean isEnabled = !(Boolean) state.getValue();
         state.setValue(isEnabled);

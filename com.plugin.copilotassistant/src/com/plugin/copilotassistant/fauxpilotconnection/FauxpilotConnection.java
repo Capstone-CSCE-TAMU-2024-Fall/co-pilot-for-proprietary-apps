@@ -1,8 +1,5 @@
 package com.plugin.copilotassistant.fauxpilotconnection;
 
-import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,6 +14,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
@@ -30,12 +31,11 @@ public class FauxpilotConnection implements BackendConnection {
 	public FauxpilotConnection(InetSocketAddress serverAddress) throws URISyntaxException {
 		URI uri = new URI("http", null, serverAddress.getHostName(), serverAddress.getPort(),
 				"/v1/engines/codegen/completions", null, null);
-		this.client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
-		this.request = HttpRequest.newBuilder().version(HttpClient.Version.HTTP_1_1).uri(uri)
-				.timeout(Duration.ofSeconds(3))
+		client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+		request = HttpRequest.newBuilder().version(HttpClient.Version.HTTP_1_1).uri(uri).timeout(Duration.ofSeconds(3))
 				.headers("Content-Type", "application/json", "Accept", "application/json");
-    
-		this.preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
+
+		preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
 	}
 
 	@Override
@@ -46,13 +46,13 @@ public class FauxpilotConnection implements BackendConnection {
 
 		BodyPublisher body = BodyPublishers.ofString(new ObjectMapper()
 				.writeValueAsString(new FauxpilotRequest(prompt, maxTokens, temperature, new ArrayList<>())));
-		return this.client.sendAsync(this.request.POST(body).build(), BodyHandlers.ofString());
+		return client.sendAsync(request.POST(body).build(), BodyHandlers.ofString());
 	}
 
 	@Override
 	public CompletableFuture<BackendResponse> parseResponse(CompletableFuture<HttpResponse<String>> response) {
 		if (response == null) {
-			return CompletableFuture.supplyAsync(() -> new FauxpilotResponse());
+			return CompletableFuture.supplyAsync(FauxpilotResponse::new);
 		}
 
 		return response.thenApply(HttpResponse::body).thenApply(r -> {

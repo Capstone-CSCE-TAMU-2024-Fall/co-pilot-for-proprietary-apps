@@ -17,7 +17,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.GlyphMetrics;
@@ -41,7 +40,7 @@ public class TextRenderer implements IPainter, PaintListener {
 
 	@Override
 	public void paintControl(PaintEvent event) {
-		paintFunctions.forEach((fn) -> {
+		paintFunctions.forEach(fn -> {
 			fn.accept(event.gc);
 		});
 	}
@@ -147,7 +146,7 @@ public class TextRenderer implements IPainter, PaintListener {
 		System.out.println("drawCurrentLineText:" + offset + ":" + textToInsert);
 		TextWithTabs textWithTabs = splitLeadingTabs(textToInsert);
 
-		paintFunctions.add((gc) -> {
+		paintFunctions.add(gc -> {
 			// Draw ghost text
 			setStyleToGhostText(styledText, gc);
 			int spaceWidth = gc.textExtent(" ").x;
@@ -168,7 +167,7 @@ public class TextRenderer implements IPainter, PaintListener {
 		int targetOffset = offset + replacedText.length();
 		if (targetOffset >= styledText.getCharCount()) {
 			// End of document, draw the ghost text only
-			paintFunctions.add((gc) -> {
+			paintFunctions.add(gc -> {
 				// Draw ghost text
 				setStyleToGhostText(styledText, gc);
 				int spaceWidth = gc.textExtent(" ").x;
@@ -192,7 +191,7 @@ public class TextRenderer implements IPainter, PaintListener {
 				System.out.println("Create StyleRange:" + originStyleRange.start + " -> " + originStyleRange.metrics);
 			}
 
-			paintFunctions.add((gc) -> {
+			paintFunctions.add(gc -> {
 				// Draw ghost text
 				setStyleToGhostText(styledText, gc);
 				int spaceWidth = gc.textExtent(" ").x;
@@ -285,7 +284,7 @@ public class TextRenderer implements IPainter, PaintListener {
 		gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
 		FontDescriptor fontDescriptor = FontDescriptor.createFrom(styledText.getFont());
 		fontDescriptor = fontDescriptor.setStyle(SWT.ITALIC);
-		this.dispose();
+		dispose();
 		font = fontDescriptor.createFont(Display.getCurrent());
 		gc.setFont(font);
 	}
@@ -295,7 +294,7 @@ public class TextRenderer implements IPainter, PaintListener {
 			paintFunctions.clear();
 
 			StyledText styledText = viewer.getTextWidget();
-			modifiedLinesVerticalIndent.forEach((modifiedLineVerticalIndent) -> {
+			modifiedLinesVerticalIndent.forEach(modifiedLineVerticalIndent -> {
 				Position position = modifiedLineVerticalIndent.position;
 				int line = styledText.getLineAtOffset(position.getOffset());
 				positionManager.unmanagePosition(position);
@@ -340,27 +339,14 @@ public class TextRenderer implements IPainter, PaintListener {
 		}
 	}
 
-	private void paintText(GC gc) {
-		StyledText styledText = viewer.getTextWidget();
-		int caretOffset = styledText.getCaretOffset();
-		try {
-			Point location = styledText.getLocationAtOffset(caretOffset);
-			gc.drawString("Test", location.x, location.y, true);
-		} catch (IllegalArgumentException ex) {
-			// Handle out of bounds offsets
-			System.out.println("Out of bounds offset: " + caretOffset);
-		}
-	}
-
 	static final Pattern PATTERN_LEADING_TABS = Pattern.compile("^(\\t*)(.*)$");
 
 	private static TextWithTabs splitLeadingTabs(String text) {
 		Matcher matcher = PATTERN_LEADING_TABS.matcher(text);
 		if (matcher.matches()) {
 			return new TextWithTabs(matcher.group(1).length(), matcher.group(2));
-		} else {
-			return new TextWithTabs(0, text);
 		}
+		return new TextWithTabs(0, text);
 	}
 
 	private static class ModifiedLineVerticalIndent {
@@ -397,7 +383,7 @@ public class TextRenderer implements IPainter, PaintListener {
 
 	@Override
 	public void setPositionManager(IPaintPositionManager manager) {
-		this.positionManager = manager;
+		positionManager = manager;
 
 	}
 }

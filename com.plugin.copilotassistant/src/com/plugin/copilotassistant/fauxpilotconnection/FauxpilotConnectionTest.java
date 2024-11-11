@@ -37,19 +37,18 @@ class FauxpilotConnectionTest {
 
 	@Test
 	void testParseResponse() {
-		String response = "{\"id\": \"cmpl-yafLPqMEkmW0PMQCr19xJbWycgXM7\", \"model\": \"codegen\", \"object\": "
-				+ "\"text_completion\", \"created\": 1728486685, \"choices\": [{\"text\": \"\\n\\t * \\tuser want to "
-				+ "do?\\n\\t */\\n\\tpublic\", \"index\": 0, \"finish_reason\": \"length\", \"logprobs\": null}], "
-				+ "\"usage\": {\"completion_tokens\": 16, \"prompt_tokens\": 4, \"total_tokens\": 20}}";
+		String response = """
+				{"id": "cmpl-yafLPqMEkmW0PMQCr19xJbWycgXM7", "model": "codegen", "object": \
+				"text_completion", "created": 1728486685, "choices": [{"text": "\\n\\t * \\tuser want to \
+				do?\\n\\t */\\n\\tpublic", "index": 0, "finish_reason": "length", "logprobs": null}], \
+				"usage": {"completion_tokens": 16, "prompt_tokens": 4, "total_tokens": 20}}""";
 		try {
 			FauxpilotResponse parsed = new ObjectMapper().readValue(response, FauxpilotResponse.class);
 			System.out.println(parsed);
-			assertEquals(parsed,
-					new FauxpilotResponse("cmpl-yafLPqMEkmW0PMQCr19xJbWycgXM7", "codegen", "text_completion",
-							1728486685,
-							List.of(new TextCompletionChoice("length", 0,
-									null, "\n\t * \tuser want to do?\n\t */\n\tpublic")),
-							new TextCompletionUsage(16, 4, 20)));
+			assertEquals(parsed, new FauxpilotResponse("cmpl-yafLPqMEkmW0PMQCr19xJbWycgXM7", "codegen",
+					"text_completion", 1728486685,
+					List.of(new TextCompletionChoice("length", 0, null, "\n\t * \tuser want to do?\n\t */\n\tpublic")),
+					new TextCompletionUsage(16, 4, 20)));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			fail(MessageFormat.format("Failed to parse {0}", response));

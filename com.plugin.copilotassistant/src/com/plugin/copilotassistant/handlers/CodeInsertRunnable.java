@@ -10,8 +10,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-public record CodeInsertRunnable(boolean enabled, String textToInsert, int offset,
-		ITextEditor textEditor) implements Runnable {
+public record CodeInsertRunnable(boolean enabled, String textToInsert, int offset, ITextEditor textEditor)
+		implements Runnable {
 
 	@Override
 	public void run() {
@@ -21,7 +21,7 @@ public record CodeInsertRunnable(boolean enabled, String textToInsert, int offse
 		}
 
 		IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
-		
+
 		try {
 			document.replace(offset, 0, actualTextToInsert);
 		} catch (BadLocationException e) {

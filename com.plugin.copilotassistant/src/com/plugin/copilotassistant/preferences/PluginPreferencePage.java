@@ -1,23 +1,21 @@
 package com.plugin.copilotassistant.preferences;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
-
-
 
 public class PluginPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 
-    public PluginPreferencePage() {
-        super(GRID);
-        // Use a ScopedPreferenceStore instead of an Activator to manage preferences
-        setPreferenceStore(new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant"));
-    }
+	public PluginPreferencePage() {
+		super(GRID);
+		// Use a ScopedPreferenceStore instead of an Activator to manage preferences
+		setPreferenceStore(new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant"));
+	}
 
 	@Override
 	protected void createFieldEditors() {
@@ -34,8 +32,8 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 		addField(new BooleanFieldEditor("DEBUG_MODE", "Debug Mode", getFieldEditorParent()));
 	}
 
-    @Override
-    public void init(IWorkbench workbench) {
-        
-    }
+	@Override
+	public void init(IWorkbench workbench) {
+
+	}
 }
