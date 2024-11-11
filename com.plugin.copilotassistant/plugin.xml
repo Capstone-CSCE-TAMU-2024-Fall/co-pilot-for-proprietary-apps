@@ -80,7 +80,7 @@
 	      <state
 	          id="org.eclipse.ui.commands.toggleState"
 	          class="org.eclipse.ui.handlers.RegistryToggleState" 
-	          default="false">
+	          default="true">
 	      </state>
 	   </command>
 	</extension>
