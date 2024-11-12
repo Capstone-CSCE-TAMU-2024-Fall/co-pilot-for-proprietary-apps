@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.State;
 import org.eclipse.core.runtime.Adapters;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -23,6 +25,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.texteditor.ITextEditor;
 
@@ -40,7 +43,7 @@ public class FauxpilotCompletionService implements TextCompletionService {
 	private Job job;
 	private String lastTextToInsert;
 	private int insertOffset;
-
+	
 	private static class LazyHolder {
 		private static final TextCompletionService INSTANCE = new FauxpilotCompletionService();
 	}
@@ -80,6 +83,11 @@ public class FauxpilotCompletionService implements TextCompletionService {
 
 	@Override
 	public void trigger() {
+		ICommandService commandService = PlatformUI.getWorkbench().getService(ICommandService.class);
+		Command command = commandService.getCommand("com.plugin.copilotassistant.commands.enableCodeInsertion");
+		State state = command.getState("org.eclipse.ui.commands.toggleState");
+		boolean enabled = state != null && (Boolean) state.getValue();
+		System.out.println("state in trigger is " + enabled);
 		ITextEditor textEditor = getTextEditor();
 
 		if (textEditor != null) {
@@ -103,51 +111,55 @@ public class FauxpilotCompletionService implements TextCompletionService {
 			textRenderer.cleanupPainting();
 			IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
 					"com.plugin.copilotassistant");
-			if (preferenceStore.getBoolean("DEBUG_MODE")) {
-
-				job = Job.create("Trigger", monitor -> {
-					System.out.println("Running job");
-					lastTextToInsert = "Test";
-					insertOffset = selection.getOffset();
-					display.asyncExec(() -> {
-						textRenderer.cleanupPainting();
-						textRenderer.setupPainting(lastTextToInsert);
-						styledText.redraw();
-					});
-				});
-			} else {
-				job = Job.create("Trigger", monitor -> {
-					System.out.println("Running job");
-					try {
+			
+			if (enabled) {
+				if (preferenceStore.getBoolean("DEBUG_MODE")) {
+	
+					job = Job.create("Trigger", monitor -> {
+						System.out.println("Running job");
+						lastTextToInsert = "Test";
 						insertOffset = selection.getOffset();
-						String context = document.get(0, insertOffset);
-						if (conn == null) {
-							connect();
-						}
-						CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
-						conn.parseResponse(response).thenAccept(r -> {
-							if (!monitor.isCanceled()) {
-								lastTextToInsert = r.choices().getFirst().text();
-								System.out.println("set lastTextToInsert: " + lastTextToInsert);
-								display.asyncExec(() -> {
-									textRenderer.cleanupPainting();
-									textRenderer.setupPainting(lastTextToInsert);
-									styledText.redraw();
-
-								});
+						display.asyncExec(() -> {
+							textRenderer.cleanupPainting();
+							textRenderer.setupPainting(lastTextToInsert);
+							styledText.redraw();
+						});
+					});
+				} else {
+					job = Job.create("Trigger", monitor -> {
+						System.out.println("Running job");
+						try {
+							insertOffset = selection.getOffset();
+							String context = document.get(0, insertOffset);
+							if (conn == null) {
+								connect();
 							}
-						}).exceptionally(e -> {
+							CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
+							conn.parseResponse(response).thenAccept(r -> {
+								if (!monitor.isCanceled()) {
+									lastTextToInsert = r.choices().getFirst().text();
+									System.out.println("set lastTextToInsert: " + lastTextToInsert);
+									display.asyncExec(() -> {
+										textRenderer.cleanupPainting();
+										textRenderer.setupPainting(lastTextToInsert);
+										styledText.redraw();
+	
+									});
+								}
+							}).exceptionally(e -> {
+								e.printStackTrace();
+								return null;
+							}).join();
+						} catch (JsonProcessingException | BadLocationException | URISyntaxException e) {
 							e.printStackTrace();
-							return null;
-						}).join();
-					} catch (JsonProcessingException | BadLocationException | URISyntaxException e) {
-						e.printStackTrace();
-					}
-				});
+						}
+					});
+				}
+				
+				job.setSystem(true);
+				job.schedule(preferenceStore.getInt("SUGGESTION_DELAY"));
+				System.out.println("Scheduled job");
 			}
-			job.setSystem(true);
-			job.schedule(preferenceStore.getInt("SUGGESTION_DELAY"));
-			System.out.println("Scheduled job");
 		}
 	}
 
