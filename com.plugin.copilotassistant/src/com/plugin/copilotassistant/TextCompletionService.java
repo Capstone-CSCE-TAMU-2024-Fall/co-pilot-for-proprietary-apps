@@ -74,7 +74,8 @@ public class TextCompletionService {
 				"com.plugin.copilotassistant");
 		InetSocketAddress socketAddress = new InetSocketAddress(preferenceStore.getString("SERVER_HOST"),
 				Integer.parseInt(preferenceStore.getString("SERVER_PORT")));
-		conn = new FauxpilotConnection(socketAddress);
+		String scheme = preferenceStore.getString("SCHEME");
+		conn = new FauxpilotConnection(socketAddress, scheme);
 	}
 
 	public void trigger() {
