@@ -1,4 +1,4 @@
-package com.plugin.copilotassistant.fauxpilotconnection;
+package com.plugin.copilotassistant;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
@@ -30,13 +30,12 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.plugin.copilotassistant.TextRenderer;
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
-import com.plugin.copilotassistant.backendconnection.TextCompletionService;
+import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
 
 // Acts as the controller, calling the TextRenderer when necessary
 // with the responses that this class gets.
-public class FauxpilotCompletionService implements TextCompletionService {
+public class TextCompletionService {
 
 	private BackendConnection conn;
 	private Map<ITextViewer, TextRenderer> textRenderers = new HashMap<>();
@@ -45,14 +44,13 @@ public class FauxpilotCompletionService implements TextCompletionService {
 	private int insertOffset;
 	
 	private static class LazyHolder {
-		private static final TextCompletionService INSTANCE = new FauxpilotCompletionService();
+		private static final TextCompletionService INSTANCE = new TextCompletionService();
 	}
 
 	public static TextCompletionService getInstance() {
 		return LazyHolder.INSTANCE;
 	}
 
-	@Override
 	public void registerRenderer(ITextViewer textViewer, TextRenderer textRenderer) {
 		StyledText styledText = textViewer.getTextWidget();
 		if (styledText != null) {
@@ -64,7 +62,6 @@ public class FauxpilotCompletionService implements TextCompletionService {
 		}
 	}
 
-	@Override
 	public void unregisterRenderer(ITextViewer textViewer) {
 		TextRenderer textRenderer = textRenderers.get(textViewer);
 		if (textRenderer != null) {
@@ -72,7 +69,6 @@ public class FauxpilotCompletionService implements TextCompletionService {
 		}
 	}
 
-	@Override
 	public void connect() throws URISyntaxException {
 		IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
 				"com.plugin.copilotassistant");
@@ -81,7 +77,6 @@ public class FauxpilotCompletionService implements TextCompletionService {
 		conn = new FauxpilotConnection(socketAddress);
 	}
 
-	@Override
 	public void trigger() {
 		ICommandService commandService = PlatformUI.getWorkbench().getService(ICommandService.class);
 		Command command = commandService.getCommand("com.plugin.copilotassistant.commands.enableCodeInsertion");
@@ -163,14 +158,15 @@ public class FauxpilotCompletionService implements TextCompletionService {
 		}
 	}
 
-	@Override
 	public boolean accept() {
 		System.out.println("current lastTextToInsert: " + lastTextToInsert);
 
 		if (lastTextToInsert.isEmpty()) {
 			return false;
 		}
-
+		
+		System.out.println("getting textEditor");
+		
 		ITextEditor textEditor = getTextEditor();
 
 		if (textEditor != null) {
@@ -196,7 +192,6 @@ public class FauxpilotCompletionService implements TextCompletionService {
 		return false;
 	}
 
-	@Override
 	public void dismiss() {
 		ITextEditor textEditor = getTextEditor();
 
