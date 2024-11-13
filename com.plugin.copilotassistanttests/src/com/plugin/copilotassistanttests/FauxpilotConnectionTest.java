@@ -1,4 +1,4 @@
-package com.plugin.copilotassistant.fauxpilotconnection;
+package com.plugin.copilotassistanttests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -18,6 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
 import com.plugin.copilotassistant.backendconnection.BackendResponse;
 import com.plugin.copilotassistant.backendconnection.TextCompletionChoice;
+import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
+import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotResponse;
+import com.plugin.copilotassistant.fauxpilotconnection.TextCompletionUsage;
 
 class FauxpilotConnectionTest {
 

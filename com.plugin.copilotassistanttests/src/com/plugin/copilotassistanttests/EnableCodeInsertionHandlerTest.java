@@ -1,4 +1,4 @@
-package com.plugin.copilotassistant.handlers;
+package com.plugin.copilotassistanttests;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,6 +10,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.plugin.copilotassistant.handlers.EnableCodeInsertionHandler;
 
 public class EnableCodeInsertionHandlerTest {
 

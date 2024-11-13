@@ -52,7 +52,8 @@ public class TextCompletionService {
 	}
 
 	public void registerRenderer(ITextViewer textViewer, TextRenderer textRenderer) {
-		StyledText styledText = textViewer.getTextWidget();
+		// textViewer passed in should not be null
+		StyledText styledText= textViewer.getTextWidget();
 		if (styledText != null) {
 			styledText.getDisplay().asyncExec(() -> {
 				((ITextViewerExtension2) textViewer).addPainter(textRenderer);

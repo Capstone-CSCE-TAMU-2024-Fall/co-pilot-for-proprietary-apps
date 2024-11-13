@@ -1,4 +1,4 @@
-package com.plugin.copilotassistant.handlers;
+package com.plugin.copilotassistanttests;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -10,6 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+
+import com.plugin.copilotassistant.handlers.CodeInsertHandler;
 
 public class CodeInsertHandlerTest {
 
