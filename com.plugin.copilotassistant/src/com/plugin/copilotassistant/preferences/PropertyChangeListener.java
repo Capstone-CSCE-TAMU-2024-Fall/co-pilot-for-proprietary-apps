@@ -8,15 +8,17 @@ import org.eclipse.jface.util.PropertyChangeEvent;
 
 import com.plugin.copilotassistant.TextCompletionService;
 
-public class ProtocolChangeListener implements IPropertyChangeListener {
+public class PropertyChangeListener implements IPropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
-		try {
-			TextCompletionService.getInstance().connect();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+		if ("SCHEME".equals(event.getProperty())) {
+	        try {
+	            TextCompletionService.getInstance().connect();
+	        } catch (URISyntaxException e) {
+	            e.printStackTrace();
+	        }
+	    }
 		
 	}
 

@@ -18,8 +18,8 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 		super(GRID);
 		// Use a ScopedPreferenceStore instead of an Activator to manage preferences
 		ScopedPreferenceStore copilotPreferences = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
-		IPropertyChangeListener  protocolListener = new ProtocolChangeListener();
-		copilotPreferences.addPropertyChangeListener(protocolListener);
+		IPropertyChangeListener  propertyListener = new PropertyChangeListener();
+		copilotPreferences.addPropertyChangeListener(propertyListener);
 		setPreferenceStore(copilotPreferences);
 	}
 
