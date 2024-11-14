@@ -10,11 +10,8 @@ import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.ui.texteditor.ITextEditor;
 
-import com.plugin.copilotassistant.backendconnection.TextCompletionService;
-import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotCompletionService;
-
 // Listens to the TextEditor and Document to determine when it is necessary to call the TextCompletionService
-public class TextCompletionTrigger implements CaretListener, VerifyKeyListener {
+public class TextCompletionListener implements CaretListener, VerifyKeyListener {
 
 	ITextEditor textEditor;
 	boolean justTriggered = false;
@@ -41,12 +38,13 @@ public class TextCompletionTrigger implements CaretListener, VerifyKeyListener {
 	@Override
 	public void caretMoved(CaretEvent event) {
 		if (!justTriggered) {
-			TextCompletionService textCompletionService = FauxpilotCompletionService.getInstance();
+			System.out.println("Caret moved, justTriggered is false");
+			TextCompletionService textCompletionService = TextCompletionService.getInstance();
 			textCompletionService.dismiss();
 		} else {
+			System.out.println("Caret moved, justTriggered set to false");
 			justTriggered = false;
 		}
-		System.out.println("Caret moved");
 	}
 
 	@Override
@@ -60,7 +58,7 @@ public class TextCompletionTrigger implements CaretListener, VerifyKeyListener {
 			return;
 		}
 
-		TextCompletionService textCompletionService = FauxpilotCompletionService.getInstance();
+		TextCompletionService textCompletionService = TextCompletionService.getInstance();
 
 		if (event.keyCode == SWT.ESC) {
 			textCompletionService.dismiss();

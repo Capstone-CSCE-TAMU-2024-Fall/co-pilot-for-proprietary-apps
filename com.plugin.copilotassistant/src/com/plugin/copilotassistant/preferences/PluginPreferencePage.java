@@ -1,9 +1,12 @@
 package com.plugin.copilotassistant.preferences;
 
+
+import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
+import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -14,7 +17,10 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 	public PluginPreferencePage() {
 		super(GRID);
 		// Use a ScopedPreferenceStore instead of an Activator to manage preferences
-		setPreferenceStore(new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant"));
+		ScopedPreferenceStore copilotPreferences = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
+		IPropertyChangeListener  protocolListener = new ProtocolChangeListener();
+		copilotPreferences.addPropertyChangeListener(protocolListener);
+		setPreferenceStore(copilotPreferences);
 	}
 
 	@Override
@@ -22,6 +28,8 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 		// Add fields for your preferences
 		addField(new StringFieldEditor("SERVER_HOST", "Server Host:", getFieldEditorParent()));
 		addField(new StringFieldEditor("SERVER_PORT", "Server Port:", getFieldEditorParent()));
+		addField(new RadioGroupFieldEditor("SCHEME", "Protocol:", 1,
+				new String[][] { { "HTTP", "http" }, { "HTTPS", "https" } }, getFieldEditorParent()));
 		addField(new IntegerFieldEditor("MAX_TOKENS", "Max Tokens:", getFieldEditorParent()));
 		addField(new IntegerFieldEditor("MAX_LINES", "Max Lines:", getFieldEditorParent()));
 		addField(new StringFieldEditor("ENGINE", "Engine:", getFieldEditorParent()));
@@ -34,6 +42,5 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 
 	@Override
 	public void init(IWorkbench workbench) {
-
 	}
 }

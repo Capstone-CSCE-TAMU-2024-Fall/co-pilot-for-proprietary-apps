@@ -28,14 +28,18 @@ public class FauxpilotConnection implements BackendConnection {
 	private HttpClient client;
 	private IPreferenceStore preferenceStore;
 
-	public FauxpilotConnection(InetSocketAddress serverAddress) throws URISyntaxException {
-		URI uri = new URI("http", null, serverAddress.getHostName(), serverAddress.getPort(),
+	public FauxpilotConnection(InetSocketAddress serverAddress, String scheme) throws URISyntaxException {
+		URI uri = new URI(scheme, null, serverAddress.getHostName(), serverAddress.getPort(),
 				"/v1/engines/codegen/completions", null, null);
 		client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 		request = HttpRequest.newBuilder().version(HttpClient.Version.HTTP_1_1).uri(uri).timeout(Duration.ofSeconds(3))
 				.headers("Content-Type", "application/json", "Accept", "application/json");
 
 		preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
+	}
+	
+	public FauxpilotConnection(InetSocketAddress serverAddress) throws URISyntaxException {
+		this(serverAddress, "http");
 	}
 
 	@Override

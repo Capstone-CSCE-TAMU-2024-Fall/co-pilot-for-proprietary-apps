@@ -1,4 +1,4 @@
-package com.plugin.copilotassistant.preferences;
+package com.plugin.copilotassistanttests;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,6 +14,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import com.plugin.copilotassistant.preferences.PluginPreferencePage;
+import com.plugin.copilotassistant.preferences.PreferenceInitializer;
 
 public class PluginPreferenceTests {
 
