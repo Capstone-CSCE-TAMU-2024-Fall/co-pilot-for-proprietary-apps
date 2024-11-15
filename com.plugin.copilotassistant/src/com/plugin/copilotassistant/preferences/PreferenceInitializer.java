@@ -21,5 +21,6 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault("SUGGESTION_DELAY", "500");
 		store.setDefault("DEBUG_MODE", false);
 		store.setDefault("SCHEME", "https");
+		store.setDefault("ENGINE", "FauxPilot");
 	}
 }
