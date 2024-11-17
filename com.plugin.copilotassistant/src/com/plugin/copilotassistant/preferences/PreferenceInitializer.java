@@ -20,7 +20,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault("TEMPERATURE", "0.2");
 		store.setDefault("SUGGESTION_DELAY", "500");
 		store.setDefault("DEBUG_MODE", false);
-		store.setDefault("SCHEME", "https");
+		store.setDefault("SCHEME", "http");
 		store.setDefault("ENGINE", "FauxPilot");
 	}
 }
