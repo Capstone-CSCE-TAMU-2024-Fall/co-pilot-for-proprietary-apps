@@ -17,11 +17,10 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		store.setDefault("SERVER_PORT", "5000");
 		store.setDefault("MAX_TOKENS", "200");
 		store.setDefault("MAX_LINES", "20");
-		store.setDefault("ENGINE", "davinci");
-		store.setDefault("MODEL", "text-davinci-003");
-		store.setDefault("TEMPERATURE", "0.1");
+		store.setDefault("TEMPERATURE", "0.2");
 		store.setDefault("SUGGESTION_DELAY", "500");
-		//store.setDefault("ENABLE_INSERTION", true);
 		store.setDefault("DEBUG_MODE", false);
+		store.setDefault("SCHEME", "http");
+		store.setDefault("ENGINE", "FauxPilot");
 	}
 }
