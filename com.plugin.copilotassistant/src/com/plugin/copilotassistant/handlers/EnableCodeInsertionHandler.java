@@ -7,11 +7,13 @@ import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.State;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 
 public class EnableCodeInsertionHandler extends AbstractHandler implements IElementUpdater {
@@ -30,6 +32,10 @@ public class EnableCodeInsertionHandler extends AbstractHandler implements IElem
         boolean isEnabled = !(Boolean) state.getValue();
         state.setValue(isEnabled);
         
+        // Save the new state to the ScopedPreferenceStore
+        ScopedPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
+        preferenceStore.setValue("ENABLE_INSERTION", isEnabled);
+        
         // Refresh the UI to reflect the state change
         commandService.refreshElements("com.plugin.copilotassistant.commands.enableCodeInsertion", null);
 
@@ -39,11 +45,15 @@ public class EnableCodeInsertionHandler extends AbstractHandler implements IElem
     
     @Override
     public void updateElement(UIElement element, Map parameters) {
-        ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
-        Command command = commandService.getCommand("com.plugin.copilotassistant.commands.enableCodeInsertion");
-        State state = command.getState("org.eclipse.ui.commands.toggleState");
+//        ICommandService commandService = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
+//        Command command = commandService.getCommand("com.plugin.copilotassistant.commands.enableCodeInsertion");
+//        State state = command.getState("org.eclipse.ui.commands.toggleState");
+//
+//        boolean isEnabled = (Boolean) state.getValue();
+    	
+    	ScopedPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
+        boolean isEnabled = preferenceStore.getBoolean("ENABLE_INSERTION");
 
-        boolean isEnabled = (Boolean) state.getValue();
 
         // Set the icon based on the state
         String iconPath = isEnabled ? ENABLED_ICON_PATH : DISABLED_ICON_PATH;

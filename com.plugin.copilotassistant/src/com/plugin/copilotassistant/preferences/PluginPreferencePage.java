@@ -2,6 +2,8 @@ package com.plugin.copilotassistant.preferences;
 
 
 import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.core.commands.Command;
+import org.eclipse.core.commands.State;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
@@ -11,6 +13,8 @@ import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 public class PluginPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
@@ -51,6 +55,23 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 		addField(new IntegerFieldEditor("SUGGESTION_DELAY", "Suggestion Delay (ms):", getFieldEditorParent()));
 		// Add a Boolean field for your preferences
 		addField(new BooleanFieldEditor("DEBUG_MODE", "Debug Mode", getFieldEditorParent()));
+		
+		// Add a Boolean (Toggle Button) field for your preferences
+		addField(new BooleanFieldEditor("ENABLE_INSERTION", "Enable Code Insertion", getFieldEditorParent()));
+		
+	    // Synchronize the preference with the handler state
+	    getPreferenceStore().addPropertyChangeListener(event -> {
+	        if ("ENABLE_INSERTION".equals(event.getProperty())) {
+	        	boolean newState = Boolean.parseBoolean(event.getNewValue().toString());
+	            
+	            ICommandService commandService = PlatformUI.getWorkbench().getService(ICommandService.class);
+	            Command command = commandService.getCommand("com.plugin.copilotassistant.commands.enableCodeInsertion");
+	            State state = command.getState("org.eclipse.ui.commands.toggleState");
+	            state.setValue(newState);
+
+	            commandService.refreshElements("com.plugin.copilotassistant.commands.enableCodeInsertion", null);
+	        }
+	    });
 	}
 
 	@Override
