@@ -29,12 +29,19 @@ The following image will then appear on the screen:
 <img src="preference_menu.png" alt="Preference Menu" width="400"/>
 
 **Server Host**: Will contain the host address that your model is running on
+
 **Server Port**: Will contain the port that your model is running on
+
 **Select Engine**: Select what backend you are using (currently FauxPilot or Tabby)
+
 **Protocol**: Select if you want to use HTTP or HTTPS calls (Likely depends of server setup)
+
 **Max Tokens**: Limits the number of tokens in the response from the server
+
 **Temperature**: Sets the randomness of the code suggestions. (0.1 or 0.2 is recommended)
+
 **Suggestion Delay**: The amount of time between stopping typing and the code suggestion being requested. (Time in milliseconds)
+
 **Enable Code Insertion**: Turn on/off code suggestions
 
 ## Enable Code Suggestion Toggle
