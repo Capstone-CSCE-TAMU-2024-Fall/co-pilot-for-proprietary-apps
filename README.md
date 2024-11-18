@@ -26,7 +26,7 @@ To access the user menu the user can look at the top tool bar and select the Fau
 
 The following image will then appear on the screen:
 
-![Preference Menu](preference_menu.png)
+<img src="preference_menu.png" alt="Preference Menu" width="400"/>
 
 **Server Host**: Will contain the host address that your model is running on
 **Server Port**: Will contain the port that your model is running on
@@ -42,10 +42,10 @@ The following image will then appear on the screen:
 In the bottom right corner of the screen there will be a toggle that will turn on or off the extension. When to the left it is off. When to the right and blue it is on.
 
 Off:
-![Toggle Off](toggle_off.png)
+<img src="toggle_off.png" alt="Toggle Off" width="300"/>
 
 On:
-![Toggle On](toggle_on.png)
+<img src="toggle_on.png" alt="Toggle On" width="300"/>
 
 # Uninstall
 - Click on Help -> Search "About Eclipse" (on some versions, it may be Eclipse IDE or Eclipse).
