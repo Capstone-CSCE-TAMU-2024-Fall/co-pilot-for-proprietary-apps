@@ -51,11 +51,6 @@ public class CodeInsertHandler extends AbstractHandler {
 				ITextSelection.class);
 		int offset = selection.getOffset();
 
-		// TODO: Fix bug when imports are collapsed: offset becomes changed to the wrong
-		// place (cursor gets moved way down)
-		// If I want to convert from document offset to StyledText widget offset, look
-		// at ITextViewerExtension5
-
 		Display display = Display.getDefault();
 		System.out.println("Code insert handler");
 		if (debug) {
@@ -68,7 +63,7 @@ public class CodeInsertHandler extends AbstractHandler {
 				BackendConnection conn = new FauxpilotConnection(socketAddress);
 
 				String context = document.get(0, offset);
-				CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
+				CompletableFuture<HttpResponse<String>> response = conn.getResponse(context, null);
 
 				conn.parseResponse(response).thenAccept(r -> {
 					String textToInsert = r.choices().getFirst().text();
@@ -80,7 +75,6 @@ public class CodeInsertHandler extends AbstractHandler {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-//				System.out.println(context);
 		}
 
 		return null;

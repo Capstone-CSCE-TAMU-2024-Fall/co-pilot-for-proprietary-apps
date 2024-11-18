@@ -1,7 +1,7 @@
 package com.plugin.copilotassistanttests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -18,11 +18,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
 import com.plugin.copilotassistant.backendconnection.BackendResponse;
 import com.plugin.copilotassistant.backendconnection.TextCompletionChoice;
-import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
 import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotResponse;
 import com.plugin.copilotassistant.fauxpilotconnection.TextCompletionUsage;
+import com.plugin.tabbyconnection.TabbyConnection;
+import com.plugin.tabbyconnection.TabbyResponse;
 
-class FauxpilotConnectionTest {
+class TabbyConnectionTest {
+
 
 	@Test
 	void testGetResponse() {
@@ -30,8 +32,8 @@ class FauxpilotConnectionTest {
 			InetAddress ip = InetAddress.getLoopbackAddress();
 			int port = 5000;
 			InetSocketAddress address = new InetSocketAddress(ip, port);
-			BackendConnection conn = new FauxpilotConnection(address);
-			System.out.println(conn.getResponse("what does the ").thenApply(HttpResponse::body).get());
+			BackendConnection conn = new TabbyConnection(address);
+			System.out.println(conn.getResponse("what does the ", "say?").thenApply(HttpResponse::body).get());
 		} catch (JsonProcessingException | InterruptedException | ExecutionException | URISyntaxException e) {
 			e.printStackTrace();
 			fail("Request failed");
@@ -46,9 +48,9 @@ class FauxpilotConnectionTest {
 				do?\\n\\t */\\n\\tpublic", "index": 0, "finish_reason": "length", "logprobs": null}], \
 				"usage": {"completion_tokens": 16, "prompt_tokens": 4, "total_tokens": 20}}""";
 		try {
-			BackendResponse parsed = new ObjectMapper().readValue(response, FauxpilotResponse.class);
+			BackendResponse parsed = new ObjectMapper().readValue(response, TabbyResponse.class);
 			System.out.println(parsed);
-			assertEquals(parsed, new FauxpilotResponse("cmpl-yafLPqMEkmW0PMQCr19xJbWycgXM7", "codegen",
+			assertEquals(parsed, new TabbyResponse("cmpl-yafLPqMEkmW0PMQCr19xJbWycgXM7", "codegen",
 					"text_completion", 1728486685,
 					List.of(new TextCompletionChoice("length", 0, null, "\n\t * \tuser want to do?\n\t */\n\tpublic")),
 					new TextCompletionUsage(16, 4, 20)));
@@ -64,12 +66,13 @@ class FauxpilotConnectionTest {
 			InetAddress ip = InetAddress.getLoopbackAddress();
 			int port = 5000;
 			InetSocketAddress address = new InetSocketAddress(ip, port);
-			BackendConnection conn = new FauxpilotConnection(address);
-			BackendResponse response = conn.parseResponse(conn.getResponse("what does the ")).join();
+			BackendConnection conn = new TabbyConnection(address);
+			BackendResponse response = conn.parseResponse(conn.getResponse("what does the ", "say?")).join();
 			System.out.println(MessageFormat.format("Parsed response: {0}", response));
 		} catch (JsonProcessingException | URISyntaxException e) {
 			e.printStackTrace();
 			fail("Failed to parse");
 		}
 	}
+
 }

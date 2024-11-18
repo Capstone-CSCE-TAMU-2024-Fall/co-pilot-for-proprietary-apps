@@ -15,12 +15,13 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		// Set default values
 		store.setDefault("SERVER_HOST", "localhost");
 		store.setDefault("SERVER_PORT", "5000");
-		store.setDefault("MAX_TOKENS", "200");
-		store.setDefault("MAX_LINES", "20");
-		store.setDefault("TEMPERATURE", "0.2");
-		store.setDefault("SUGGESTION_DELAY", "500");
-		store.setDefault("DEBUG_MODE", false);
+		store.setDefault("BACKEND", "Fauxpilot");
+		store.setDefault("AUTHORIZATION_TOKEN", "");
 		store.setDefault("SCHEME", "http");
-		store.setDefault("ENGINE", "FauxPilot");
+		store.setDefault("MAX_TOKENS", 200);
+		store.setDefault("MAX_LINES", 20);
+		store.setDefault("TEMPERATURE", "0.2");
+		store.setDefault("SUGGESTION_DELAY", 500);
+		store.setDefault("DEBUG_MODE", false);
 	}
 }

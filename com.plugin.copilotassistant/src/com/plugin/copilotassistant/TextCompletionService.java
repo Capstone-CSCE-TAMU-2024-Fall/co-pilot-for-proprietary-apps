@@ -32,6 +32,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
 import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
+import com.plugin.tabbyconnection.TabbyConnection;
 
 // Acts as the controller, calling the TextRenderer when necessary
 // with the responses that this class gets.
@@ -42,7 +43,7 @@ public class TextCompletionService {
 	private Job job;
 	private String lastTextToInsert;
 	private int insertOffset;
-	
+
 	private static class LazyHolder {
 		private static final TextCompletionService INSTANCE = new TextCompletionService();
 	}
@@ -53,7 +54,7 @@ public class TextCompletionService {
 
 	public void registerRenderer(ITextViewer textViewer, TextRenderer textRenderer) {
 		// textViewer passed in should not be null
-		StyledText styledText= textViewer.getTextWidget();
+		StyledText styledText = textViewer.getTextWidget();
 		if (styledText != null) {
 			styledText.getDisplay().asyncExec(() -> {
 				((ITextViewerExtension2) textViewer).addPainter(textRenderer);
@@ -76,7 +77,17 @@ public class TextCompletionService {
 		InetSocketAddress socketAddress = new InetSocketAddress(preferenceStore.getString("SERVER_HOST"),
 				Integer.parseInt(preferenceStore.getString("SERVER_PORT")));
 		String scheme = preferenceStore.getString("SCHEME");
-		conn = new FauxpilotConnection(socketAddress, scheme);
+		String backend = preferenceStore.getString("BACKEND");
+		switch (backend) {
+		case "Fauxpilot":
+			conn = new FauxpilotConnection(socketAddress, scheme);
+			break;
+		case "Tabby":
+			conn = new TabbyConnection(socketAddress, scheme);
+			break;
+		default:
+			throw new IllegalArgumentException(String.format("Invalid backend selected: %s", backend));
+		}
 	}
 
 	public void trigger() {
@@ -108,10 +119,10 @@ public class TextCompletionService {
 			textRenderer.cleanupPainting();
 			IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
 					"com.plugin.copilotassistant");
-			
+
 			if (enabled) {
 				if (preferenceStore.getBoolean("DEBUG_MODE")) {
-	
+
 					job = Job.create("Trigger", monitor -> {
 						System.out.println("Running job");
 						lastTextToInsert = "Test";
@@ -127,11 +138,12 @@ public class TextCompletionService {
 						System.out.println("Running job");
 						try {
 							insertOffset = selection.getOffset();
-							String context = document.get(0, insertOffset);
+							String prefix = document.get(0, insertOffset);
+							String suffix = document.get(insertOffset, document.getLength() - insertOffset);
 							if (conn == null) {
 								connect();
 							}
-							CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
+							CompletableFuture<HttpResponse<String>> response = conn.getResponse(prefix, suffix);
 							conn.parseResponse(response).thenAccept(r -> {
 								if (!monitor.isCanceled()) {
 									lastTextToInsert = r.choices().getFirst().text();
@@ -140,7 +152,7 @@ public class TextCompletionService {
 										textRenderer.cleanupPainting();
 										textRenderer.setupPainting(lastTextToInsert);
 										styledText.redraw();
-	
+
 									});
 								}
 							}).exceptionally(e -> {
@@ -152,7 +164,7 @@ public class TextCompletionService {
 						}
 					});
 				}
-				
+
 				job.setSystem(true);
 				job.schedule(preferenceStore.getInt("SUGGESTION_DELAY"));
 				System.out.println("Scheduled job");
@@ -166,9 +178,9 @@ public class TextCompletionService {
 		if (lastTextToInsert.isEmpty()) {
 			return false;
 		}
-		
+
 		System.out.println("getting textEditor");
-		
+
 		ITextEditor textEditor = getTextEditor();
 
 		if (textEditor != null) {
