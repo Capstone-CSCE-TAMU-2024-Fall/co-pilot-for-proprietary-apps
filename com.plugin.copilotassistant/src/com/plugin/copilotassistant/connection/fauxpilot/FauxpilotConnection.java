@@ -1,27 +1,21 @@
-package com.plugin.copilotassistant.fauxpilotconnection;
+package com.plugin.copilotassistant.connection.fauxpilot;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.plugin.copilotassistant.backendconnection.BackendConnection;
-import com.plugin.copilotassistant.backendconnection.BackendResponse;
-import com.plugin.copilotassistant.tabbyconnection.TabbyResponse;
+import com.plugin.copilotassistant.connection.backend.BackendConnection;
+import com.plugin.copilotassistant.connection.backend.BackendResponse;
 
 public class FauxpilotConnection extends BackendConnection {
 	public FauxpilotConnection(InetSocketAddress serverAddress, String scheme) throws URISyntaxException {

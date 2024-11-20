@@ -1,16 +1,16 @@
-package com.plugin.copilotassistant.backendconnection;
+package com.plugin.copilotassistant.connection.backend;
 
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.jface.preference.IPreferenceStore;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,25 +25,18 @@ public abstract class BackendConnection implements IBackendConnection {
 				.headers("Content-Type", "application/json", "Accept", "application/json");
 	}
 
-	protected BackendConnection(InetSocketAddress serverAddress, String scheme) {
-	}
-	
-	protected BackendConnection(InetSocketAddress serverAddress) throws URISyntaxException {
-		this(serverAddress, "http");
-	}
-
-
 	public CompletableFuture<HttpResponse<String>> getResponse(String prefix, IPreferenceStore preferenceStore)
 			throws JsonProcessingException {
 		return this.getResponse(prefix, "", preferenceStore);
 	}
 
+	@Override
 	public <T extends BackendResponse> CompletableFuture<T> parseResponse(
 			CompletableFuture<HttpResponse<String>> response, Class<T> responseType) {
 		if (response == null) {
 			return CompletableFuture.failedFuture(new NullPointerException());
 		}
-		
+
 		return response.thenApply(HttpResponse::body).thenApply(r -> {
 			try {
 				System.out.println("response: " + r);

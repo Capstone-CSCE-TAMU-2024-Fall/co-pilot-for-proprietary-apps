@@ -18,11 +18,12 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.plugin.copilotassistant.backendconnection.BackendConnection;
-import com.plugin.copilotassistant.backendconnection.BackendResponse;
-import com.plugin.copilotassistant.backendconnection.TextCompletionChoice;
-import com.plugin.copilotassistant.tabbyconnection.TabbyConnection;
-import com.plugin.copilotassistant.tabbyconnection.TabbyResponse;
+import com.plugin.copilotassistant.connection.backend.BackendConnection;
+import com.plugin.copilotassistant.connection.backend.BackendResponse;
+import com.plugin.copilotassistant.connection.backend.TextCompletionChoice;
+import com.plugin.copilotassistant.connection.tabby.TabbyConnection;
+import com.plugin.copilotassistant.connection.tabby.TabbyResponse;
+
 import org.eclipse.jface.preference.PreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
 

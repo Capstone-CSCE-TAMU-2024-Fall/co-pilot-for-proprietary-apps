@@ -1,4 +1,4 @@
-package com.plugin.copilotassistant.fauxpilotconnection;
+package com.plugin.copilotassistant.connection.fauxpilot;
 
 import java.util.List;
 
