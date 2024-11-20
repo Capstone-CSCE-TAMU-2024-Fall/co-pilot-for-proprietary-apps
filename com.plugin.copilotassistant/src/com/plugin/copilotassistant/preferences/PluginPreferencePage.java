@@ -12,7 +12,6 @@ import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -23,22 +22,19 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import com.plugin.copilotassistant.TextCompletionService;
 
 public class PluginPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
-	StringFieldEditor authorizationTokenEditor;
-	Composite fieldEditorParent;
+	ScopedPreferenceStore copilotPreferences;
+	IPropertyChangeListener propertyListener;
 
 	public PluginPreferencePage() {
 		super(GRID);
 		// Use a ScopedPreferenceStore instead of an Activator to manage preferences
-		ScopedPreferenceStore copilotPreferences = new ScopedPreferenceStore(InstanceScope.INSTANCE,
-				"com.plugin.copilotassistant");
-		IPropertyChangeListener propertyListener = new PropertyChangeListener();
-		copilotPreferences.addPropertyChangeListener(propertyListener);
+		copilotPreferences = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
 		setPreferenceStore(copilotPreferences);
 	}
 
 	@Override
 	protected void createFieldEditors() {
-		fieldEditorParent = getFieldEditorParent();
+		Composite fieldEditorParent = getFieldEditorParent();
 		// Add fields for your preferences
 		addField(new StringFieldEditor("SERVER_HOST", "Server Host:", fieldEditorParent));
 		addField(new StringFieldEditor("SERVER_PORT", "Server Port:", fieldEditorParent));
@@ -48,9 +44,10 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 				"Select Backend:", // Label text
 				backendOptions, fieldEditorParent));
 
-		authorizationTokenEditor = new StringFieldEditor("AUTHORIZATION_TOKEN", "Tabby Authorization Token:",
-				fieldEditorParent);
+		StringFieldEditor authorizationTokenEditor = new StringFieldEditor("AUTHORIZATION_TOKEN",
+				"Tabby Authorization Token:", fieldEditorParent);
 		addField(authorizationTokenEditor);
+		authorizationTokenEditor.setEnabled(copilotPreferences.getString("BACKEND").equals("Tabby"), fieldEditorParent);
 
 		String[][] protocols = new String[][] { { "HTTP", "http" }, { "HTTPS", "https" } };
 		addField(new RadioGroupFieldEditor("SCHEME", "Protocol:", 1, protocols, fieldEditorParent));
@@ -65,15 +62,8 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 
 		// Add a Boolean (Toggle Button) field for your preferences
 		addField(new BooleanFieldEditor("ENABLE_INSERTION", "Enable Code Insertion", fieldEditorParent));
-	}
-
-	@Override
-	public void init(IWorkbench workbench) {
-	}
-
-	class PropertyChangeListener implements IPropertyChangeListener {
-		@Override
-		public void propertyChange(PropertyChangeEvent event) {
+		
+		propertyListener = event -> {
 			String propertyChanged = event.getProperty();
 
 			switch (propertyChanged) {
@@ -90,7 +80,8 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 			}
 			case "BACKEND": {
 				String backend = event.getNewValue().toString();
-				authorizationTokenEditor.setEnabled(backend.equals("Tabby"), fieldEditorParent);
+				System.out.println(backend.equals("Tabby"));
+				authorizationTokenEditor.setEnabled(backend.equals("Tabby"), getFieldEditorParent());
 			}
 			case "SCHEME", "SERVER_HOST", "SERVER_PORT", "AUTHORIZATION_TOKEN": {
 				try {
@@ -104,6 +95,18 @@ public class PluginPreferencePage extends FieldEditorPreferencePage implements I
 				break;
 
 			}
-		}
+		};
+		copilotPreferences.addPropertyChangeListener(propertyListener);
 	}
+
+	@Override
+	public void init(IWorkbench workbench) {
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		copilotPreferences.removePropertyChangeListener(propertyListener);
+	}
+
 }
