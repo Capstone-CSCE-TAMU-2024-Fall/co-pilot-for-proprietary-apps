@@ -1,4 +1,4 @@
-package com.plugin.copilotassistant.backendconnection;
+package com.plugin.copilotassistant.connection.backend;
 
 import java.util.List;
 

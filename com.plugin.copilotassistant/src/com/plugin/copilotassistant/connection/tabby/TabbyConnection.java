@@ -1,12 +1,12 @@
-package com.plugin.copilotassistant.tabbyconnection;
+package com.plugin.copilotassistant.connection.tabby;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpRequest.Builder;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -15,8 +15,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.plugin.copilotassistant.backendconnection.BackendConnection;
-import com.plugin.copilotassistant.backendconnection.BackendResponse;
+import com.plugin.copilotassistant.connection.backend.BackendConnection;
+import com.plugin.copilotassistant.connection.backend.BackendResponse;
 
 public class TabbyConnection extends BackendConnection {
 	Random rand;

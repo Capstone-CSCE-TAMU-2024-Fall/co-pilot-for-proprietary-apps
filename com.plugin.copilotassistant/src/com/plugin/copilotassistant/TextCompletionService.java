@@ -30,9 +30,9 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.plugin.copilotassistant.backendconnection.BackendConnection;
-import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
-import com.plugin.copilotassistant.tabbyconnection.TabbyConnection;
+import com.plugin.copilotassistant.connection.backend.BackendConnection;
+import com.plugin.copilotassistant.connection.fauxpilot.FauxpilotConnection;
+import com.plugin.copilotassistant.connection.tabby.TabbyConnection;
 
 // Acts as the controller, calling the TextRenderer when necessary
 // with the responses that this class gets.
@@ -79,16 +79,11 @@ public class TextCompletionService {
 				Integer.parseInt(preferenceStore.getString("SERVER_PORT")));
 		String scheme = preferenceStore.getString("SCHEME");
 		String backend = preferenceStore.getString("BACKEND");
-		switch (backend) {
-		case "Fauxpilot":
-			conn = new FauxpilotConnection(socketAddress, scheme);
-			break;
-		case "Tabby":
-			conn = new TabbyConnection(socketAddress, scheme);
-			break;
-		default:
-			throw new IllegalArgumentException(String.format("Invalid backend selected: %s", backend));
-		}
+		conn = switch (backend) {
+		case "Fauxpilot" -> new FauxpilotConnection(socketAddress, scheme);
+		case "Tabby" -> new TabbyConnection(socketAddress, scheme);
+		default -> throw new IllegalArgumentException(String.format("Invalid backend selected: %s", backend));
+		};
 	}
 
 	public void trigger() {

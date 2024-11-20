@@ -20,12 +20,12 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.plugin.copilotassistant.backendconnection.BackendConnection;
-import com.plugin.copilotassistant.backendconnection.BackendResponse;
-import com.plugin.copilotassistant.backendconnection.TextCompletionChoice;
-import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
-import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotResponse;
-import com.plugin.copilotassistant.fauxpilotconnection.TextCompletionUsage;
+import com.plugin.copilotassistant.connection.backend.BackendConnection;
+import com.plugin.copilotassistant.connection.backend.BackendResponse;
+import com.plugin.copilotassistant.connection.backend.TextCompletionChoice;
+import com.plugin.copilotassistant.connection.fauxpilot.FauxpilotConnection;
+import com.plugin.copilotassistant.connection.fauxpilot.FauxpilotResponse;
+import com.plugin.copilotassistant.connection.fauxpilot.TextCompletionUsage;
 
 
 @TestInstance(Lifecycle.PER_CLASS)

@@ -1,4 +1,4 @@
-package com.plugin.copilotassistant.fauxpilotconnection;
+package com.plugin.copilotassistant.connection.fauxpilot;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;

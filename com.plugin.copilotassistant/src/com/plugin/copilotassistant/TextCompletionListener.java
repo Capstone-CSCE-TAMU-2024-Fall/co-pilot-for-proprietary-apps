@@ -72,7 +72,7 @@ public class TextCompletionListener implements CaretListener, VerifyKeyListener 
 		if (event.keyCode == SWT.TAB) {
 			accept = textCompletionService.accept();
 		}
-		
+
 		System.out.println("accept: " + accept);
 
 		if (accept) {

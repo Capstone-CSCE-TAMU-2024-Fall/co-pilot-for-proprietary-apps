@@ -6,11 +6,9 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.text.IPaintPositionManager;
 import org.eclipse.jface.text.IPainter;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.Position;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -40,7 +38,7 @@ public class TextRenderer implements IPainter, PaintListener, StyledTextLineSpac
 	public TextRenderer(ITextViewer viewer) {
 		this.viewer = viewer;
 	}
-	
+
 	public void update(String textToInsert) {
 		StyledText styledText = viewer.getTextWidget();
 		cleanupPainting();
@@ -278,7 +276,7 @@ public class TextRenderer implements IPainter, PaintListener, StyledTextLineSpac
 
 		// Leave the space for the ghost text
 		int lineCount = lines.size();
-		this.lineSpacing = styledText.getLineSpacing() + lineCount * lineHeight;
+		lineSpacing = styledText.getLineSpacing() + lineCount * lineHeight;
 
 		List<TextWithTabs> linesTextWithTab = new ArrayList<>();
 		for (String line : lines) {
@@ -320,8 +318,8 @@ public class TextRenderer implements IPainter, PaintListener, StyledTextLineSpac
 		gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
 		if (font == null || font.isDisposed()) {
 			FontData[] fontData = styledText.getFont().getFontData();
-			for (int i = 0; i < fontData.length; ++i) {
-				fontData[i].setStyle(fontData[i].getStyle() | SWT.ITALIC);
+			for (FontData element : fontData) {
+				element.setStyle(element.getStyle() | SWT.ITALIC);
 			}
 			font = new Font(Display.getCurrent(), fontData);
 		}
