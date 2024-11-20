@@ -32,7 +32,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.plugin.copilotassistant.backendconnection.BackendConnection;
 import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
-import com.plugin.tabbyconnection.TabbyConnection;
+import com.plugin.copilotassistant.tabbyconnection.TabbyConnection;
 
 // Acts as the controller, calling the TextRenderer when necessary
 // with the responses that this class gets.
@@ -43,6 +43,8 @@ public class TextCompletionService {
 	private Job job;
 	private String lastTextToInsert;
 	private int insertOffset;
+	private IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
+			"com.plugin.copilotassistant");
 
 	private static class LazyHolder {
 		private static final TextCompletionService INSTANCE = new TextCompletionService();
@@ -59,6 +61,7 @@ public class TextCompletionService {
 			styledText.getDisplay().asyncExec(() -> {
 				((ITextViewerExtension2) textViewer).addPainter(textRenderer);
 				styledText.addPaintListener(textRenderer);
+				styledText.setLineSpacingProvider(textRenderer);
 			});
 			textRenderers.put(textViewer, textRenderer);
 		}
@@ -72,8 +75,6 @@ public class TextCompletionService {
 	}
 
 	public void connect() throws URISyntaxException {
-		IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
-				"com.plugin.copilotassistant");
 		InetSocketAddress socketAddress = new InetSocketAddress(preferenceStore.getString("SERVER_HOST"),
 				Integer.parseInt(preferenceStore.getString("SERVER_PORT")));
 		String scheme = preferenceStore.getString("SCHEME");
@@ -128,9 +129,7 @@ public class TextCompletionService {
 						lastTextToInsert = "Test";
 						insertOffset = selection.getOffset();
 						display.asyncExec(() -> {
-							textRenderer.cleanupPainting();
-							textRenderer.setupPainting(lastTextToInsert);
-							styledText.redraw();
+							textRenderer.update(lastTextToInsert);
 						});
 					});
 				} else {
@@ -143,16 +142,15 @@ public class TextCompletionService {
 							if (conn == null) {
 								connect();
 							}
-							CompletableFuture<HttpResponse<String>> response = conn.getResponse(prefix, suffix);
+
+							CompletableFuture<HttpResponse<String>> response = conn.getResponse(prefix, suffix,
+									preferenceStore);
 							conn.parseResponse(response).thenAccept(r -> {
 								if (!monitor.isCanceled()) {
 									lastTextToInsert = r.choices().getFirst().text();
 									System.out.println("set lastTextToInsert: " + lastTextToInsert);
 									display.asyncExec(() -> {
-										textRenderer.cleanupPainting();
-										textRenderer.setupPainting(lastTextToInsert);
-										styledText.redraw();
-
+										textRenderer.update(lastTextToInsert);
 									});
 								}
 							}).exceptionally(e -> {

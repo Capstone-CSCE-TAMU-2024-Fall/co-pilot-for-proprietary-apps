@@ -1,4 +1,4 @@
-package com.plugin.tabbyconnection;
+package com.plugin.copilotassistant.tabbyconnection;
 
 import java.util.ArrayList;
 import java.util.List;

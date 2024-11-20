@@ -1,4 +1,4 @@
-package com.plugin.tabbyconnection;
+package com.plugin.copilotassistant.tabbyconnection;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;

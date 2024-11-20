@@ -10,10 +10,7 @@ import java.net.http.HttpRequest.Builder;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.ui.preferences.ScopedPreferenceStore;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -21,24 +18,24 @@ public abstract class BackendConnection implements IBackendConnection {
 
 	protected Builder request;
 	protected HttpClient client;
-	protected IPreferenceStore preferenceStore;
 
-	protected BackendConnection(InetSocketAddress serverAddress, String scheme) throws URISyntaxException {
-		URI uri = new URI(scheme, null, serverAddress.getHostName(), serverAddress.getPort(),
-				"/v1/engines/codegen/completions", null, null);
+	protected BackendConnection(URI uri) throws URISyntaxException {
 		client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 		request = HttpRequest.newBuilder().version(HttpClient.Version.HTTP_1_1).uri(uri).timeout(Duration.ofSeconds(3))
 				.headers("Content-Type", "application/json", "Accept", "application/json");
-
-		preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE, "com.plugin.copilotassistant");
 	}
 
+	protected BackendConnection(InetSocketAddress serverAddress, String scheme) {
+	}
+	
 	protected BackendConnection(InetSocketAddress serverAddress) throws URISyntaxException {
 		this(serverAddress, "http");
 	}
 
-	public CompletableFuture<HttpResponse<String>> getResponse(String prefix) throws JsonProcessingException {
-		return this.getResponse(prefix, "");
+
+	public CompletableFuture<HttpResponse<String>> getResponse(String prefix, IPreferenceStore preferenceStore)
+			throws JsonProcessingException {
+		return this.getResponse(prefix, "", preferenceStore);
 	}
 
 	public <T extends BackendResponse> CompletableFuture<T> parseResponse(
@@ -46,9 +43,10 @@ public abstract class BackendConnection implements IBackendConnection {
 		if (response == null) {
 			return CompletableFuture.failedFuture(new NullPointerException());
 		}
-
+		
 		return response.thenApply(HttpResponse::body).thenApply(r -> {
 			try {
+				System.out.println("response: " + r);
 				return new ObjectMapper().readValue(r, responseType);
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();

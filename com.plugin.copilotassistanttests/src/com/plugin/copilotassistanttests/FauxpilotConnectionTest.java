@@ -11,7 +11,12 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceStore;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,17 +27,34 @@ import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
 import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotResponse;
 import com.plugin.copilotassistant.fauxpilotconnection.TextCompletionUsage;
 
+
+@TestInstance(Lifecycle.PER_CLASS)
 class FauxpilotConnectionTest {
+
+	IPreferenceStore preferenceStore = new PreferenceStore();
+	InetSocketAddress address;
+	BackendConnection conn;
+
+	@BeforeAll
+	void setupPreferences() {
+		preferenceStore.setValue("TEMPERATURE", "0.1");
+		preferenceStore.setValue("AUTHORIZATION_TOKEN", null);
+		InetAddress ip = InetAddress.getLoopbackAddress();
+		int port = 5000;
+		address = new InetSocketAddress(ip, port);
+		try {
+			conn = new FauxpilotConnection(address);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			fail("Invalid URI syntax while initializing Tabby connection.");
+		}
+	}
 
 	@Test
 	void testGetResponse() {
 		try {
-			InetAddress ip = InetAddress.getLoopbackAddress();
-			int port = 5000;
-			InetSocketAddress address = new InetSocketAddress(ip, port);
-			BackendConnection conn = new FauxpilotConnection(address);
-			System.out.println(conn.getResponse("what does the ").thenApply(HttpResponse::body).get());
-		} catch (JsonProcessingException | InterruptedException | ExecutionException | URISyntaxException e) {
+			System.out.println(conn.getResponse("what does the ", preferenceStore).thenApply(HttpResponse::body).get());
+		} catch (JsonProcessingException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 			fail("Request failed");
 		}
@@ -61,13 +83,9 @@ class FauxpilotConnectionTest {
 	@Test
 	void testRequestResponse() {
 		try {
-			InetAddress ip = InetAddress.getLoopbackAddress();
-			int port = 5000;
-			InetSocketAddress address = new InetSocketAddress(ip, port);
-			BackendConnection conn = new FauxpilotConnection(address);
-			BackendResponse response = conn.parseResponse(conn.getResponse("what does the ")).join();
+			BackendResponse response = conn.parseResponse(conn.getResponse("what does the ", preferenceStore)).join();
 			System.out.println(MessageFormat.format("Parsed response: {0}", response));
-		} catch (JsonProcessingException | URISyntaxException e) {
+		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			fail("Failed to parse");
 		}

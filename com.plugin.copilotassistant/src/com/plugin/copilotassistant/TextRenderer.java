@@ -14,9 +14,11 @@ import org.eclipse.jface.text.Position;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.StyledTextLineSpacingProvider;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.GlyphMetrics;
@@ -26,16 +28,26 @@ import org.eclipse.swt.widgets.Display;
 // Methods for rendering are largely from the Tabby Eclipse plugin, with some modifications
 
 // Displays any text passed to it in the current TextViewer
-public class TextRenderer implements IPainter, PaintListener {
+public class TextRenderer implements IPainter, PaintListener, StyledTextLineSpacingProvider {
 	private ITextViewer viewer;
 	private List<Consumer<GC>> paintFunctions = new ArrayList<>();
 	private IPaintPositionManager positionManager;
 	private Font font;
-	private List<ModifiedLineVerticalIndent> modifiedLinesVerticalIndent = new ArrayList<>();
+	private int lineIndex;
+	private int lineSpacing;
 	private List<GlyphMetrics> modifiedGlyphMetrics = new ArrayList<>();
 
 	public TextRenderer(ITextViewer viewer) {
 		this.viewer = viewer;
+	}
+	
+	public void update(String textToInsert) {
+		StyledText styledText = viewer.getTextWidget();
+		cleanupPainting();
+		int offset = styledText.getCaretOffset();
+		lineIndex = styledText.getLineAtOffset(offset);
+		setupPainting(textToInsert);
+		styledText.redraw();
 	}
 
 	@Override
@@ -53,10 +65,31 @@ public class TextRenderer implements IPainter, PaintListener {
 		}
 	}
 
+	public void cleanupPainting() {
+		try {
+			paintFunctions.clear();
+			lineSpacing = 0;
+
+			StyledText styledText = viewer.getTextWidget();
+			StyleRange[] styleRanges = styledText.getStyleRanges();
+			for (StyleRange styleRange : styleRanges) {
+				if (modifiedGlyphMetrics.contains(styleRange.metrics)) {
+					styleRange.metrics = null;
+					styledText.setStyleRange(styleRange);
+					System.out.println("Restore StyleRange: " + styleRange.start + ": " + styleRange.metrics);
+				}
+			}
+			modifiedGlyphMetrics.clear();
+		} catch (Exception e) {
+			System.out.println("Failed to cleanup renderer.\n" + e);
+		}
+	}
+
 	public void setupPainting(String textToInsert) {
 		if (textToInsert == null) {
 			return;
 		}
+		System.out.println("textToInsert: " + textToInsert);
 		StyledText styledText = viewer.getTextWidget();
 		int offset = styledText.getCaretOffset();
 
@@ -88,7 +121,7 @@ public class TextRenderer implements IPainter, PaintListener {
 			textCurrentLine = textToInsert.substring(0, firstLineBreakIndex);
 			textSuffixLines = textToInsert.substring(firstLineBreakIndex + 1);
 		}
-
+		System.out.println("current line: " + firstLineBreakIndex);
 		int suffixReplaceLength = 0;
 
 		if (suffixReplaceLength == 0 || currentLineSuffix.isEmpty()) {
@@ -147,6 +180,9 @@ public class TextRenderer implements IPainter, PaintListener {
 		TextWithTabs textWithTabs = splitLeadingTabs(textToInsert);
 
 		paintFunctions.add(gc -> {
+			if (offset > styledText.getCharCount()) {
+				return;
+			}
 			// Draw ghost text
 			setStyleToGhostText(styledText, gc);
 			int spaceWidth = gc.textExtent(" ").x;
@@ -168,6 +204,9 @@ public class TextRenderer implements IPainter, PaintListener {
 		if (targetOffset >= styledText.getCharCount()) {
 			// End of document, draw the ghost text only
 			paintFunctions.add(gc -> {
+				if (offset > styledText.getCharCount()) {
+					return;
+				}
 				// Draw ghost text
 				setStyleToGhostText(styledText, gc);
 				int spaceWidth = gc.textExtent(" ").x;
@@ -192,6 +231,10 @@ public class TextRenderer implements IPainter, PaintListener {
 			}
 
 			paintFunctions.add(gc -> {
+				if (offset > styledText.getCharCount()) {
+					return;
+				}
+
 				// Draw ghost text
 				setStyleToGhostText(styledText, gc);
 				int spaceWidth = gc.textExtent(" ").x;
@@ -206,10 +249,8 @@ public class TextRenderer implements IPainter, PaintListener {
 				int targetCharWidth = gc.stringExtent(targetChar).x;
 
 				StyleRange currentStyleRange = styledText.getStyleRangeAtOffset(targetOffset);
-				if (currentStyleRange != null && currentStyleRange.metrics != null
-						&& currentStyleRange.metrics.width == shiftWidth + targetCharWidth) {
-					// nothing to do
-				} else {
+				if (currentStyleRange == null || currentStyleRange.metrics == null
+						|| currentStyleRange.metrics.width != shiftWidth + targetCharWidth) {
 					StyleRange styleRange = (StyleRange) originStyleRange.clone();
 					styleRange.start = targetOffset;
 					styleRange.length = 1;
@@ -230,22 +271,14 @@ public class TextRenderer implements IPainter, PaintListener {
 	}
 
 	private void drawSuffixLines(StyledText styledText, String textToInsert, int offset) {
+		System.out.println("drawSuffixLines:" + offset + ":" + textToInsert);
 		int lineHeight = styledText.getLineHeight();
 		List<String> lines = textToInsert.lines().toList();
+		System.out.println("lines: " + lines);
 
 		// Leave the space for the ghost text
-		int nextLine = styledText.getLineAtOffset(offset) + 1;
-		if (nextLine < styledText.getLineCount()) {
-			int lineCount = lines.size();
-			int originVerticalIndent = styledText.getLineVerticalIndent(nextLine);
-			Position position = new Position(styledText.getOffsetAtLine(nextLine), 0);
-			positionManager.managePosition(position);
-			int modifiedVerticalIndent = originVerticalIndent + lineCount * lineHeight;
-			modifiedLinesVerticalIndent
-					.add(new ModifiedLineVerticalIndent(position, originVerticalIndent, modifiedVerticalIndent));
-			styledText.setLineVerticalIndent(nextLine, modifiedVerticalIndent);
-			System.out.println("Set LineVerticalIndent:" + nextLine + " -> " + modifiedVerticalIndent);
-		}
+		int lineCount = lines.size();
+		this.lineSpacing = styledText.getLineSpacing() + lineCount * lineHeight;
 
 		List<TextWithTabs> linesTextWithTab = new ArrayList<>();
 		for (String line : lines) {
@@ -253,14 +286,16 @@ public class TextRenderer implements IPainter, PaintListener {
 		}
 
 		paintFunctions.add(gc -> {
+			if (offset > styledText.getCharCount()) {
+				return;
+			}
 			// Draw ghost text
 			setStyleToGhostText(styledText, gc);
-
 			int spaceWidth = gc.textExtent(" ").x;
 			Point location = styledText.getLocationAtOffset(offset);
 			int y = location.y;
 			for (TextWithTabs textWithTabs : linesTextWithTab) {
-				int x = styledText.getLeftMargin() + textWithTabs.tabs * styledText.getTabs() * spaceWidth;
+				int x = styledText.getLeftMargin() + textWithTabs.getTabs() * styledText.getTabs() * spaceWidth;
 				y += lineHeight;
 				gc.drawString(textWithTabs.text, x, y, true);
 			}
@@ -281,61 +316,33 @@ public class TextRenderer implements IPainter, PaintListener {
 	}
 
 	private void setStyleToGhostText(StyledText styledText, GC gc) {
+		gc.setFont(font);
 		gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
-		FontDescriptor fontDescriptor = FontDescriptor.createFrom(styledText.getFont());
-		fontDescriptor = fontDescriptor.setStyle(SWT.ITALIC);
-		dispose();
-		font = fontDescriptor.createFont(Display.getCurrent());
+		if (font == null || font.isDisposed()) {
+			FontData[] fontData = styledText.getFont().getFontData();
+			for (int i = 0; i < fontData.length; ++i) {
+				fontData[i].setStyle(fontData[i].getStyle() | SWT.ITALIC);
+			}
+			font = new Font(Display.getCurrent(), fontData);
+		}
 		gc.setFont(font);
 	}
 
-	public void cleanupPainting() {
-		try {
-			paintFunctions.clear();
+	public static class TextWithTabs {
+		private int tabs;
+		private String text;
 
-			StyledText styledText = viewer.getTextWidget();
-			modifiedLinesVerticalIndent.forEach(modifiedLineVerticalIndent -> {
-				Position position = modifiedLineVerticalIndent.position;
-				int line = styledText.getLineAtOffset(position.getOffset());
-				positionManager.unmanagePosition(position);
-				int indent = modifiedLineVerticalIndent.indent;
-				int modifiedIndent = modifiedLineVerticalIndent.modifiedIndent;
-				// Find the line to restore the indent
-				int lineToRestore = -1;
-				int delta = 0;
-				while (delta < styledText.getLineCount()) {
-					lineToRestore = line + delta;
-					if (lineToRestore >= 0 && lineToRestore < styledText.getLineCount()
-							&& styledText.getLineVerticalIndent(lineToRestore) == modifiedIndent) {
-						break;
-					}
-					lineToRestore = line - delta;
-					if (lineToRestore >= 0 && lineToRestore < styledText.getLineCount()
-							&& styledText.getLineVerticalIndent(lineToRestore) == modifiedIndent) {
-						break;
-					}
-					delta++;
-				}
-				if (lineToRestore >= 0 && lineToRestore < styledText.getLineCount()) {
-					styledText.setLineVerticalIndent(lineToRestore, indent);
-					System.out.println("Restore LineVerticalIndent: " + lineToRestore + " -> " + indent);
-				}
+		public TextWithTabs(int tabs, String text) {
+			this.tabs = tabs;
+			this.text = text;
+		}
 
-			});
-			modifiedLinesVerticalIndent.clear();
+		public int getTabs() {
+			return tabs;
+		}
 
-			StyleRange[] styleRanges = styledText.getStyleRanges();
-			for (StyleRange styleRange : styleRanges) {
-				if (modifiedGlyphMetrics.contains(styleRange.metrics)) {
-					styleRange.metrics = null;
-					styledText.setStyleRange(styleRange);
-					System.out.println("Restore StyleRange:" + styleRange.start + " -> " + styleRange.metrics);
-				}
-			}
-			modifiedGlyphMetrics.clear();
-
-		} catch (Exception e) {
-			System.out.println("Failed to cleanup renderer." + e);
+		public String getText() {
+			return text;
 		}
 	}
 
@@ -347,28 +354,6 @@ public class TextRenderer implements IPainter, PaintListener {
 			return new TextWithTabs(matcher.group(1).length(), matcher.group(2));
 		}
 		return new TextWithTabs(0, text);
-	}
-
-	private static class ModifiedLineVerticalIndent {
-		private Position position;
-		private int indent;
-		private int modifiedIndent;
-
-		public ModifiedLineVerticalIndent(Position position, int indent, int modifiedIndent) {
-			this.position = position;
-			this.indent = indent;
-			this.modifiedIndent = modifiedIndent;
-		}
-	}
-
-	private static class TextWithTabs {
-		private int tabs;
-		private String text;
-
-		public TextWithTabs(int tabs, String text) {
-			this.tabs = tabs;
-			this.text = text;
-		}
 	}
 
 	@Override
@@ -386,4 +371,13 @@ public class TextRenderer implements IPainter, PaintListener {
 		positionManager = manager;
 
 	}
+
+	@Override
+	public Integer getLineSpacing(int lineIndex) {
+		if (this.lineIndex == lineIndex) {
+			return lineSpacing;
+		}
+		return null;
+	}
+
 }

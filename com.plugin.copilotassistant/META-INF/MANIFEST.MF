@@ -7,7 +7,7 @@ Export-Package: com.plugin.copilotassistant.backendconnection,
  com.plugin.copilotassistant.fauxpilotconnection,
  com.plugin.copilotassistant.handlers,
  com.plugin.copilotassistant.preferences,
- com.plugin.tabbyconnection
+ com.plugin.copilotassistant.tabbyconnection
 Bundle-Vendor: PLUGIN
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime;bundle-version="3.31.100",
