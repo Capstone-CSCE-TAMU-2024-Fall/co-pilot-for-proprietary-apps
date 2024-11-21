@@ -3,7 +3,7 @@ This is an Eclipse IDE plugin that aims to provide similar functionaliy to GitHu
 
 ## Currently Supported Backends
 - Fauxpilot
-- Tabby
+- Tabby (Basic functionality)
 
 # Installation
 [Download the extension](https://github.com/Capstone-CSCE-TAMU-2024-Fall/capstone-l3harris-co-pilot-for-proprietary-apps/releases/latest/)
@@ -68,7 +68,6 @@ On:
 - Restart Eclipse to fully remove the plugin.
 
 # Documentation
-
 https://github.com/orgs/Capstone-CSCE-TAMU-2024-Fall/projects/1 
 
 # Building & Development
@@ -108,11 +107,6 @@ Clone this Github repository
 2. Select Plug-in Development -> Deployable features and click Next
 3. Select the Archive file option
 4. Click Finish
-
-# Documentation
-
-For more detailed documentation, please refer to the [Documentation Index](com.plugin.copilotassistant/doc/index.html).
-
 
 # Contributing
 For more detailed information about how to contribute, take a look at [CONTRIBUTING.md](CONTRIBUTING.md).
