@@ -68,7 +68,6 @@ On:
 - Restart Eclipse to fully remove the plugin.
 
 # Documentation
-
 https://github.com/orgs/Capstone-CSCE-TAMU-2024-Fall/projects/1 
 
 # Building & Development
