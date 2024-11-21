@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	
+	<extension point="org.eclipse.ui.startup">>
+		<startup class="com.codingassistant.codingassistantplugin.Startup"/>
+	</extension>
+
+	<extension
+	     point="org.eclipse.core.runtime.preferences">
+	   <initializer
+	         class="com.codingassistant.codingassistantplugin.preferences.PreferenceInitializer">
+	   </initializer>
+	</extension>
+	
+	<extension
+	    point="org.eclipse.ui.menus">
+	   <menuContribution
+	       locationURI="menu:org.eclipse.ui.main.menu?after=window"> 
+            <menu
+                label="Coding Assistant"
+                id="com.codingassistant.codingassistantplugin.menus.codingAssistantMenu">
+                <command
+                    commandId="com.codingassistant.codingassistantplugin.commands.openPreferences"
+                    label="Open Preferences"
+                    style="push">
+                </command>
+            </menu>
+	   </menuContribution>
+	   
+		<menuContribution
+		    locationURI="toolbar:org.eclipse.ui.trim.status">
+		    <toolbar
+		        id="com.codingassistant.codingassistantplugin.toolbar.status">
+		        <command
+		            commandId="com.codingassistant.codingassistantplugin.commands.enableCodeInsertion"
+		            style="toggle"
+		            icon="icons/toggle_off.png"
+		            tooltip="Enable/Disable Code Insertion">
+		        </command>
+		    </toolbar>
+		</menuContribution>
+	</extension>
+
+	<extension
+	    point="org.eclipse.ui.handlers">
+	   <handler
+	       commandId="com.codingassistant.codingassistantplugin.commands.openPreferences"
+	       class="com.codingassistant.codingassistantplugin.handlers.OpenPreferencesHandler">
+	   </handler>
+	   
+	   <handler
+           commandId="com.codingassistant.codingassistantplugin.commands.enableCodeInsertion"
+           class="com.codingassistant.codingassistantplugin.handlers.EnableCodeInsertionHandler">
+       </handler>
+	</extension>
+	
+
+	<extension
+	    point="org.eclipse.ui.preferencePages">
+	   <page
+	      id="com.codingassistant.codingassistantplugin.preferences.PluginPreferencePage"
+	      name="Coding Assistant"
+	      class="com.codingassistant.codingassistantplugin.preferences.PluginPreferencePage">
+	   </page>
+	</extension>
+
+
+	<extension
+	   point="org.eclipse.ui.commands">
+	   <command
+	      id="com.codingassistant.codingassistantplugin.commands.openPreferences"
+	      name="Open Preferences" />
+	      
+		<command
+	      id="com.codingassistant.codingassistantplugin.commands.enableCodeInsertion"
+	      style="toggle"
+	      name="Enable Code Insertion">
+	      <state
+	          id="org.eclipse.ui.commands.toggleState"
+	          class="org.eclipse.ui.handlers.RegistryToggleState" 
+	          default="true">
+	      </state>
+	   </command>
+	</extension>
+
+</plugin>
