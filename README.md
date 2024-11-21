@@ -112,7 +112,7 @@ Install Java >= 21
 
 # Documentation
 
-For more detailed documentation, please refer to the [Documentation Index](com.plugin.copilotassistant\doc\index.html).
+For more detailed documentation, please refer to the [Documentation Index](com.plugin.copilotassistant/doc/index.html).
 
 
 https://github.com/orgs/Capstone-CSCE-TAMU-2024-Fall/projects/1 
