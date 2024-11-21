@@ -15,6 +15,30 @@ import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
+/**
+ * Handler for enabling or disabling code insertion functionality.
+ * This class extends AbstractHandler and implements IElementUpdater to handle
+ * the state change and UI update for the code insertion feature.
+ * 
+ * <p>
+ * The handler toggles the state of the code insertion command and updates the
+ * corresponding icon and tooltip in the UI.
+ * </p>
+ * 
+ * <p>
+ * The state is persisted in the ScopedPreferenceStore to maintain the state
+ * across sessions.
+ * </p>
+ * 
+ * <p>
+ * The following icons are used to represent the state:
+ * <ul>
+ * <li>{@code /icons/toggle_on.png} - When code insertion is enabled</li>
+ * <li>{@code /icons/toggle_off.png} - When code insertion is disabled</li>
+ * </ul>
+ * </p>
+ * 
+ */
 public class EnableCodeInsertionHandler extends AbstractHandler implements IElementUpdater {
 
 	private static final String ENABLED_ICON_PATH = "/icons/toggle_on.png";
