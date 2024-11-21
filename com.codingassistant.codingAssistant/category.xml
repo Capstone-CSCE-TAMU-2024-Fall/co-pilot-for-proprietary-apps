@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="codingAssistant">
+      <category name="ai_coding_assistant"/>
+   </feature>
+   <bundle id="com.codingassistant.codingassistantplugin">
+      <category name="ai_coding_assistant"/>
+   </bundle>
+   <category-def name="ai_coding_assistant" label="AI Coding Assistant"/>
+</site>
