@@ -1,7 +1,7 @@
 package com.plugin.copilotassistanttests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -11,8 +11,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceStore;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -23,14 +21,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plugin.copilotassistant.connection.backend.BackendConnection;
 import com.plugin.copilotassistant.connection.backend.BackendResponse;
 import com.plugin.copilotassistant.connection.backend.TextCompletionChoice;
-import com.plugin.copilotassistant.connection.fauxpilot.FauxpilotConnection;
-import com.plugin.copilotassistant.connection.fauxpilot.FauxpilotResponse;
-import com.plugin.copilotassistant.connection.fauxpilot.TextCompletionUsage;
+import com.plugin.copilotassistant.connection.tabby.TabbyConnection;
+import com.plugin.copilotassistant.connection.tabby.TabbyResponse;
 
+import org.eclipse.jface.preference.PreferenceStore;
+import org.eclipse.jface.preference.IPreferenceStore;
 
 @TestInstance(Lifecycle.PER_CLASS)
-class FauxpilotConnectionTest {
-
+class TabbyConnectionTest {
 	IPreferenceStore preferenceStore = new PreferenceStore();
 	InetSocketAddress address;
 	BackendConnection conn;
@@ -38,12 +36,12 @@ class FauxpilotConnectionTest {
 	@BeforeAll
 	void setupPreferences() {
 		preferenceStore.setValue("TEMPERATURE", "0.1");
-		preferenceStore.setValue("AUTHORIZATION_TOKEN", null);
+		preferenceStore.setValue("AUTHORIZATION_TOKEN", "auth_d6dbb33755064e31b819df431a1949a4");
 		InetAddress ip = InetAddress.getLoopbackAddress();
-		int port = 5000;
+		int port = 8080;
 		address = new InetSocketAddress(ip, port);
 		try {
-			conn = new FauxpilotConnection(address);
+			conn = new TabbyConnection(address);
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			fail("Invalid URI syntax while initializing Tabby connection.");
@@ -53,7 +51,8 @@ class FauxpilotConnectionTest {
 	@Test
 	void testGetResponse() {
 		try {
-			System.out.println(conn.getResponse("what does the ", preferenceStore).thenApply(HttpResponse::body).get());
+			System.out.println(
+					conn.getResponse("what does the ", " say?", preferenceStore).thenApply(HttpResponse::body).get());
 		} catch (JsonProcessingException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 			fail("Request failed");
@@ -63,17 +62,14 @@ class FauxpilotConnectionTest {
 	@Test
 	void testParseResponse() {
 		String response = """
-				{"id": "cmpl-yafLPqMEkmW0PMQCr19xJbWycgXM7", "model": "codegen", "object": \
-				"text_completion", "created": 1728486685, "choices": [{"text": "\\n\\t * \\tuser want to \
-				do?\\n\\t */\\n\\tpublic", "index": 0, "finish_reason": "length", "logprobs": null}], \
-				"usage": {"completion_tokens": 16, "prompt_tokens": 4, "total_tokens": 20}}""";
+				{"id":"cmpl-148891d8-b290-4ee8-bd42-1080416ae5f8","choices":[{"index":0,"text":"if n == 0:\\n        return 0\\n    elif n == 1:\\n        return 1\\n    else:"}]}""";
 		try {
-			BackendResponse parsed = new ObjectMapper().readValue(response, FauxpilotResponse.class);
+			BackendResponse parsed = new ObjectMapper().readValue(response, TabbyResponse.class);
 			System.out.println(parsed);
-			assertEquals(parsed, new FauxpilotResponse("cmpl-yafLPqMEkmW0PMQCr19xJbWycgXM7", "codegen",
-					"text_completion", 1728486685,
-					List.of(new TextCompletionChoice("length", 0, null, "\n\t * \tuser want to do?\n\t */\n\tpublic")),
-					new TextCompletionUsage(16, 4, 20)));
+			assertEquals(parsed,
+					new TabbyResponse("cmpl-148891d8-b290-4ee8-bd42-1080416ae5f8",
+							List.of(new TextCompletionChoice(null, 0, null,
+									"if n == 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:"))));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			fail(MessageFormat.format("Failed to parse {0}", response));
@@ -83,11 +79,13 @@ class FauxpilotConnectionTest {
 	@Test
 	void testRequestResponse() {
 		try {
-			BackendResponse response = conn.parseResponse(conn.getResponse("what does the ", preferenceStore)).join();
+			BackendResponse response = conn.parseResponse(conn.getResponse("what does the ", " say?", preferenceStore))
+					.join();
 			System.out.println(MessageFormat.format("Parsed response: {0}", response));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			fail("Failed to parse");
 		}
 	}
+
 }

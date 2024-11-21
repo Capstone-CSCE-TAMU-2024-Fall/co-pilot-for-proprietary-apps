@@ -74,7 +74,7 @@ public class EditorActivationListener implements IPartListener2 {
 			textViewer = Adapters.adapt(activeEditor, ITextViewer.class);
 			System.out.println("textViewer: " + textViewer);
 		}
-		
+
 		if (textViewer != null) {
 			TextRenderer textRenderer = new TextRenderer(textViewer);
 			TextCompletionService.getInstance().registerRenderer(textViewer, textRenderer);

@@ -30,8 +30,9 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.plugin.copilotassistant.backendconnection.BackendConnection;
-import com.plugin.copilotassistant.fauxpilotconnection.FauxpilotConnection;
+import com.plugin.copilotassistant.connection.backend.BackendConnection;
+import com.plugin.copilotassistant.connection.fauxpilot.FauxpilotConnection;
+import com.plugin.copilotassistant.connection.tabby.TabbyConnection;
 
 // Acts as the controller, calling the TextRenderer when necessary
 // with the responses that this class gets.
@@ -42,7 +43,9 @@ public class TextCompletionService {
 	private Job job;
 	private String lastTextToInsert;
 	private int insertOffset;
-	
+	private IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
+			"com.plugin.copilotassistant");
+
 	private static class LazyHolder {
 		private static final TextCompletionService INSTANCE = new TextCompletionService();
 	}
@@ -53,11 +56,12 @@ public class TextCompletionService {
 
 	public void registerRenderer(ITextViewer textViewer, TextRenderer textRenderer) {
 		// textViewer passed in should not be null
-		StyledText styledText= textViewer.getTextWidget();
+		StyledText styledText = textViewer.getTextWidget();
 		if (styledText != null) {
 			styledText.getDisplay().asyncExec(() -> {
 				((ITextViewerExtension2) textViewer).addPainter(textRenderer);
 				styledText.addPaintListener(textRenderer);
+				styledText.setLineSpacingProvider(textRenderer);
 			});
 			textRenderers.put(textViewer, textRenderer);
 		}
@@ -71,12 +75,15 @@ public class TextCompletionService {
 	}
 
 	public void connect() throws URISyntaxException {
-		IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
-				"com.plugin.copilotassistant");
 		InetSocketAddress socketAddress = new InetSocketAddress(preferenceStore.getString("SERVER_HOST"),
 				Integer.parseInt(preferenceStore.getString("SERVER_PORT")));
 		String scheme = preferenceStore.getString("SCHEME");
-		conn = new FauxpilotConnection(socketAddress, scheme);
+		String backend = preferenceStore.getString("BACKEND");
+		conn = switch (backend) {
+		case "Fauxpilot" -> new FauxpilotConnection(socketAddress, scheme);
+		case "Tabby" -> new TabbyConnection(socketAddress, scheme);
+		default -> throw new IllegalArgumentException(String.format("Invalid backend selected: %s", backend));
+		};
 	}
 
 	public void trigger() {
@@ -108,18 +115,16 @@ public class TextCompletionService {
 			textRenderer.cleanupPainting();
 			IPreferenceStore preferenceStore = new ScopedPreferenceStore(InstanceScope.INSTANCE,
 					"com.plugin.copilotassistant");
-			
+
 			if (enabled) {
 				if (preferenceStore.getBoolean("DEBUG_MODE")) {
-	
+
 					job = Job.create("Trigger", monitor -> {
 						System.out.println("Running job");
 						lastTextToInsert = "Test";
 						insertOffset = selection.getOffset();
 						display.asyncExec(() -> {
-							textRenderer.cleanupPainting();
-							textRenderer.setupPainting(lastTextToInsert);
-							styledText.redraw();
+							textRenderer.update(lastTextToInsert);
 						});
 					});
 				} else {
@@ -127,20 +132,20 @@ public class TextCompletionService {
 						System.out.println("Running job");
 						try {
 							insertOffset = selection.getOffset();
-							String context = document.get(0, insertOffset);
+							String prefix = document.get(0, insertOffset);
+							String suffix = document.get(insertOffset, document.getLength() - insertOffset);
 							if (conn == null) {
 								connect();
 							}
-							CompletableFuture<HttpResponse<String>> response = conn.getResponse(context);
+
+							CompletableFuture<HttpResponse<String>> response = conn.getResponse(prefix, suffix,
+									preferenceStore);
 							conn.parseResponse(response).thenAccept(r -> {
 								if (!monitor.isCanceled()) {
 									lastTextToInsert = r.choices().getFirst().text();
 									System.out.println("set lastTextToInsert: " + lastTextToInsert);
 									display.asyncExec(() -> {
-										textRenderer.cleanupPainting();
-										textRenderer.setupPainting(lastTextToInsert);
-										styledText.redraw();
-	
+										textRenderer.update(lastTextToInsert);
 									});
 								}
 							}).exceptionally(e -> {
@@ -152,7 +157,7 @@ public class TextCompletionService {
 						}
 					});
 				}
-				
+
 				job.setSystem(true);
 				job.schedule(preferenceStore.getInt("SUGGESTION_DELAY"));
 				System.out.println("Scheduled job");
@@ -166,9 +171,9 @@ public class TextCompletionService {
 		if (lastTextToInsert.isEmpty()) {
 			return false;
 		}
-		
+
 		System.out.println("getting textEditor");
-		
+
 		ITextEditor textEditor = getTextEditor();
 
 		if (textEditor != null) {
