@@ -112,6 +112,9 @@ Install Java >= 21
 
 # Documentation
 
+For more detailed documentation, please refer to the [Documentation Index](doc/index.html).
+
+
 https://github.com/orgs/Capstone-CSCE-TAMU-2024-Fall/projects/1 
 
 # Our Team
