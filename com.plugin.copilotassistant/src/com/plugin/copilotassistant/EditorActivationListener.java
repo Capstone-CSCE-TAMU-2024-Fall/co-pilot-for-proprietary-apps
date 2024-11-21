@@ -15,6 +15,36 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+/**
+ * The EditorActivationListener class implements the IPartListener2 interface to listen for
+ * editor activation, deactivation, opening, and closing events within the Eclipse workbench.
+ * It registers and unregisters text completion listeners and renderers for text editors.
+ * 
+ * <p>This class maintains a map of suggestion triggers associated with each editor part reference.
+ * It registers the listener to all active workbench pages and their editors upon initialization.
+ * 
+ * <p>Methods:
+ * <ul>
+ *   <li>{@link #registerEditorActivationListener()}: Registers the listener to all active workbench pages and their editors.</li>
+ *   <li>{@link #partActivated(IWorkbenchPartReference)}: Handles the event when a part is activated.</li>
+ *   <li>{@link #partDeactivated(IWorkbenchPartReference)}: Handles the event when a part is deactivated.</li>
+ *   <li>{@link #partOpened(IWorkbenchPartReference)}: Handles the event when a part is opened, registers text completion listeners and renderers.</li>
+ *   <li>{@link #partClosed(IWorkbenchPartReference)}: Handles the event when a part is closed, unregisters text completion listeners and renderers.</li>
+ * </ul>
+ * 
+ * <p>Fields:
+ * <ul>
+ *   <li>{@code suggestionTriggers}: A map that holds the text completion listeners associated with each editor part reference.</li>
+ * </ul>
+ * 
+ * <p>Usage:
+ * <pre>
+ * {@code
+ * EditorActivationListener listener = new EditorActivationListener();
+ * listener.registerEditorActivationListener();
+ * }
+ * </pre>
+ */
 public class EditorActivationListener implements IPartListener2 {
 	private Map<IWorkbenchPartReference, TextCompletionListener> suggestionTriggers = new HashMap<>();
 
@@ -74,7 +104,7 @@ public class EditorActivationListener implements IPartListener2 {
 			textViewer = Adapters.adapt(activeEditor, ITextViewer.class);
 			System.out.println("textViewer: " + textViewer);
 		}
-		
+
 		if (textViewer != null) {
 			TextRenderer textRenderer = new TextRenderer(textViewer);
 			TextCompletionService.getInstance().registerRenderer(textViewer, textRenderer);

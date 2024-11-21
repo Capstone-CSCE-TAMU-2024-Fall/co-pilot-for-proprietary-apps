@@ -11,6 +11,29 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 // Listens to the TextEditor and Document to determine when it is necessary to call the TextCompletionService
+/**
+ * The TextCompletionListener class implements CaretListener and VerifyKeyListener
+ * to provide text completion functionality in an ITextEditor.
+ * 
+ * <p>This listener registers itself to an ITextEditor and listens for caret movements
+ * and key events to trigger or dismiss text completions.</p>
+ * 
+ * <p>It uses the TextCompletionService to manage text completions.</p>
+ * 
+ * <p>Methods:</p>
+ * <ul>
+ *   <li>{@link #register(ITextEditor)} - Registers the listener to the given ITextEditor.</li>
+ *   <li>{@link #unregister(ITextEditor)} - Unregisters the listener from the given ITextEditor.</li>
+ *   <li>{@link #caretMoved(CaretEvent)} - Handles caret movement events.</li>
+ *   <li>{@link #verifyKey(VerifyEvent)} - Handles key verification events.</li>
+ * </ul>
+ * 
+ * <p>Fields:</p>
+ * <ul>
+ *   <li>{@code ITextEditor textEditor} - The text editor to which this listener is registered.</li>
+ *   <li>{@code boolean justTriggered} - A flag to indicate if a text completion was just triggered.</li>
+ * </ul>
+ */
 public class TextCompletionListener implements CaretListener, VerifyKeyListener {
 
 	ITextEditor textEditor;
@@ -73,8 +96,11 @@ public class TextCompletionListener implements CaretListener, VerifyKeyListener 
 			accept = textCompletionService.accept();
 		}
 
+		System.out.println("accept: " + accept);
+
 		if (accept) {
 			event.doit = false;
+			justTriggered = true;
 		} else if (!isArrowKey) {
 			textCompletionService.trigger();
 			justTriggered = true;
