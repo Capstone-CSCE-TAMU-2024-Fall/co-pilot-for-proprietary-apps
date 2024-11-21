@@ -36,6 +36,35 @@ import com.plugin.copilotassistant.connection.tabby.TabbyConnection;
 
 // Acts as the controller, calling the TextRenderer when necessary
 // with the responses that this class gets.
+/**
+ * The TextCompletionService class provides functionality for text completion
+ * within an Eclipse-based text editor. It manages connections to backend services
+ * for generating text completions, registers and unregisters text renderers, and
+ * handles the insertion, acceptance, and dismissal of text completions.
+ * 
+ * <p>This service is implemented as a singleton, accessible via the 
+ * {@link #getInstance()} method.</p>
+ * 
+ * <p>Key functionalities include:</p>
+ * <ul>
+ *   <li>Connecting to backend services such as Fauxpilot and Tabby for text completion.</li>
+ *   <li>Registering and unregistering text renderers to handle the display of text completions.</li>
+ *   <li>Triggering text completion jobs based on the current state and user preferences.</li>
+ *   <li>Accepting and inserting the generated text completions into the document.</li>
+ *   <li>Dismissing text completions and cleaning up the renderer state.</li>
+ * </ul>
+ * 
+ * <p>Configuration and preferences are managed through an Eclipse preference store.</p>
+ * 
+ * <p>Example usage:</p>
+ * <pre>
+ * {@code
+ * TextCompletionService service = TextCompletionService.getInstance();
+ * service.connect();
+ * service.trigger();
+ * }
+ * </pre>
+ */
 public class TextCompletionService {
 
 	private BackendConnection conn;
