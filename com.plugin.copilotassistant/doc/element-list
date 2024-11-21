@@ -1,0 +1,6 @@
+com.plugin.copilotassistant
+com.plugin.copilotassistant.connection.backend
+com.plugin.copilotassistant.connection.fauxpilot
+com.plugin.copilotassistant.connection.tabby
+com.plugin.copilotassistant.handlers
+com.plugin.copilotassistant.preferences

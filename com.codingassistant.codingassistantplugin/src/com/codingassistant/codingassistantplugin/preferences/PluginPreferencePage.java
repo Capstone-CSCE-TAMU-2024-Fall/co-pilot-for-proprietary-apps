@@ -21,6 +21,38 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.codingassistant.codingassistantplugin.TextCompletionService;
 
+/**
+ * This class represents the preference page for the Copilot Assistant plugin.
+ * It extends FieldEditorPreferencePage and implements IWorkbenchPreferencePage.
+ * The preference page allows users to configure various settings for the plugin.
+ * 
+ * <p>Preferences include:</p>
+ * <ul>
+ *   <li>Server Host</li>
+ *   <li>Server Port</li>
+ *   <li>Backend selection (Fauxpilot or Tabby)</li>
+ *   <li>Tabby Authorization Token</li>
+ *   <li>Protocol (HTTP or HTTPS)</li>
+ *   <li>Max Tokens</li>
+ *   <li>Max Lines</li>
+ *   <li>Temperature</li>
+ *   <li>Suggestion Delay</li>
+ *   <li>Debug Mode</li>
+ *   <li>Enable Code Insertion</li>
+ * </ul>
+ * 
+ * <p>The class also listens for changes to preferences and updates the plugin's
+ * behavior accordingly.</p>
+ * 
+ * <p>Example usage:</p>
+ * <pre>
+ * {@code
+ * PluginPreferencePage preferencePage = new PluginPreferencePage();
+ * preferencePage.createFieldEditors();
+ * }
+ * </pre>
+ * 
+ */
 public class PluginPreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
 	ScopedPreferenceStore copilotPreferences;
 	IPropertyChangeListener propertyListener;

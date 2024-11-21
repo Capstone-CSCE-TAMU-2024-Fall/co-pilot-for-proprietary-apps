@@ -18,6 +18,32 @@ import com.codingassistant.codingassistantplugin.connection.backend.BackendRespo
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * The TabbyConnection class extends BackendConnection and is responsible for
+ * establishing a connection to a server and handling requests and responses.
+ * It supports both HTTP and HTTPS schemes.
+ * 
+ * <p>This class provides methods to:
+ * <ul>
+ *   <li>Initialize a connection with a specified server address and scheme.</li>
+ *   <li>Send a request to the server and receive a response asynchronously.</li>
+ *   <li>Parse the server response into a specific response type.</li>
+ * </ul>
+ * 
+ * <p>Usage example:
+ * <pre>
+ * {@code
+ * InetSocketAddress serverAddress = new InetSocketAddress("hostname", port);
+ * TabbyConnection connection = new TabbyConnection(serverAddress, "http");
+ * CompletableFuture<HttpResponse<String>> response = connection.getResponse(prefix, suffix, preferenceStore);
+ * }
+ * </pre>
+ * 
+ * <p>Note: This class requires a valid server address and scheme to function correctly.
+ * It also utilizes a preference store to retrieve configuration settings such as
+ * temperature and authorization token.
+ * 
+ **/
 public class TabbyConnection extends BackendConnection {
 	Random rand;
 

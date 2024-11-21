@@ -17,6 +17,36 @@ import com.codingassistant.codingassistantplugin.connection.backend.BackendRespo
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * The FauxpilotConnection class extends BackendConnection to provide a connection
+ * to a Fauxpilot server. It is responsible for constructing the URI for the server
+ * and handling the request and response for code completion.
+ * 
+ * <p>There are two constructors available:
+ * <ul>
+ *   <li>One that takes an InetSocketAddress and a scheme (e.g., "http" or "https")</li>
+ *   <li>One that takes only an InetSocketAddress and defaults to "http" scheme</li>
+ * </ul>
+ * 
+ * <p>The class overrides two methods from BackendConnection:
+ * <ul>
+ *   <li>{@code getResponse(String prefix, String suffix, IPreferenceStore preferenceStore)}:
+ *       Sends an asynchronous HTTP request to the Fauxpilot server with the given prefix and
+ *       suffix, and returns a CompletableFuture of the HTTP response.</li>
+ *   <li>{@code parseResponse(CompletableFuture<HttpResponse<String>> response)}:
+ *       Parses the HTTP response into a BackendResponse of type FauxpilotResponse.</li>
+ * </ul>
+ * 
+ * <p>Usage example:
+ * <pre>
+ * {@code
+ * InetSocketAddress address = new InetSocketAddress("localhost", 8080);
+ * FauxpilotConnection connection = new FauxpilotConnection(address);
+ * CompletableFuture<HttpResponse<String>> response = connection.getResponse("prefix", "suffix", preferenceStore);
+ * }
+ * </pre>
+ * 
+ */
 public class FauxpilotConnection extends BackendConnection {
 	public FauxpilotConnection(InetSocketAddress serverAddress, String scheme) throws URISyntaxException {
 		super(serverAddress, scheme, "/v1/engines/codegen/completions");

@@ -11,6 +11,10 @@ import org.eclipse.ui.IStartup;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
+/**
+ * The Startup class implements the IStartup interface to perform actions during the early startup phase of the Eclipse plugin.
+ * It registers an EditorActivationListener and triggers a toggle command to set the initial UI state.
+ */
 public class Startup implements IStartup {
 
 	@Override

@@ -5,6 +5,24 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
+/**
+ * PreferenceInitializer is responsible for initializing the default preferences
+ * for the Copilot Assistant plugin. It extends AbstractPreferenceInitializer and
+ * overrides the initializeDefaultPreferences method to set default values for
+ * various preferences using ScopedPreferenceStore.
+ * 
+ * Default preferences initialized:
+ * - SERVER_HOST: Default server host (default: "localhost")
+ * - SERVER_PORT: Default server port (default: "5000")
+ * - BACKEND: Backend service to use (default: "Fauxpilot")
+ * - AUTHORIZATION_TOKEN: Authorization token for the backend (default: "")
+ * - SCHEME: URL scheme (default: "http")
+ * - MAX_TOKENS: Maximum number of tokens (default: 200)
+ * - MAX_LINES: Maximum number of lines (default: 20)
+ * - TEMPERATURE: Temperature setting for the backend (default: "0.2")
+ * - SUGGESTION_DELAY: Delay for suggestions in milliseconds (default: 500)
+ * - DEBUG_MODE: Debug mode flag (default: false)
+ */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
 	@Override

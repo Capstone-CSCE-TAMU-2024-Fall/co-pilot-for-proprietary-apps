@@ -26,6 +26,26 @@ import org.eclipse.swt.widgets.Display;
 // Methods for rendering are largely from the Tabby Eclipse plugin, with some modifications
 
 // Displays any text passed to it in the current TextViewer
+/**
+ * The TextRenderer class is responsible for rendering text within an ITextViewer.
+ * It implements IPainter, PaintListener, and StyledTextLineSpacingProvider interfaces.
+ * This class provides functionality to update, paint, and manage the text rendering,
+ * including handling ghost text and line spacing.
+ * 
+ * <p>Key functionalities include:</p>
+ * <ul>
+ *   <li>Updating the text to be rendered and setting up the painting process.</li>
+ *   <li>Cleaning up the painting by clearing paint functions and restoring original styles.</li>
+ *   <li>Handling the painting control event to render the text using the provided paint functions.</li>
+ *   <li>Disposing of resources such as fonts when they are no longer needed.</li>
+ *   <li>Drawing various parts of the text including inserted, replaced, and suffix lines.</li>
+ *   <li>Managing the style and appearance of the ghost text.</li>
+ * </ul>
+ * 
+ * <p>Additionally, the class provides utility methods to handle text with leading tabs and
+ * to manage the line spacing for specific lines.</p>
+ * 
+ */
 public class TextRenderer implements IPainter, PaintListener, StyledTextLineSpacingProvider {
 	private ITextViewer viewer;
 	private List<Consumer<GC>> paintFunctions = new ArrayList<>();

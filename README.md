@@ -109,6 +109,10 @@ Clone this Github repository
 3. Select the Archive file option
 4. Click Finish
 
+# Documentation
+
+For more detailed documentation, please refer to the [Documentation Index](com.plugin.copilotassistant/doc/index.html).
+
 
 # Contributing
 For more detailed information about how to contribute, take a look at [CONTRIBUTING.md](CONTRIBUTING.md).

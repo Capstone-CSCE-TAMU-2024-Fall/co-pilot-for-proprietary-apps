@@ -15,6 +15,19 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Abstract class representing a backend connection.
+ * This class provides the basic structure for making HTTP requests and handling responses.
+ * It implements the {@link IBackendConnection} interface.
+ * 
+ * <p>It initializes an {@link HttpClient} with a connection timeout of 5 seconds and 
+ * a {@link HttpRequest.Builder} with a timeout of 3 seconds. The request builder is 
+ * configured to use HTTP/1.1 and sets the "Content-Type" and "Accept" headers to "application/json".</p>
+ * 
+ * <p>Subclasses should provide specific implementations for making requests and handling responses.</p>
+ * 
+ * @see IBackendConnection
+ */
 public abstract class BackendConnection implements IBackendConnection {
 
 	protected Builder request;
