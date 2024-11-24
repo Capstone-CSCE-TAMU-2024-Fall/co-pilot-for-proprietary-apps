@@ -74,12 +74,11 @@
 	      
 		<command
 	      id="com.codingassistant.codingassistantplugin.commands.enableCodeInsertion"
-	      style="toggle"
 	      name="Enable Code Insertion">
 	      <state
 	          id="org.eclipse.ui.commands.toggleState"
 	          class="org.eclipse.ui.handlers.RegistryToggleState" 
-	          default="true">
+	          >
 	      </state>
 	   </command>
 	</extension>

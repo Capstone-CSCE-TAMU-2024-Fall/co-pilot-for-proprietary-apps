@@ -17,5 +17,5 @@ Require-Bundle: org.eclipse.ui,
  com.fasterxml.jackson.core.jackson-databind;bundle-version="2.17.2",
  com.fasterxml.jackson.core.jackson-core;bundle-version="2.17.2",
  com.fasterxml.jackson.core.jackson-annotations;bundle-version="2.17.2"
-Automatic-Module-Name: com.plugin.copilotassistant
+Automatic-Module-Name: com.codingassistant.codingassistantplugin
 Bundle-RequiredExecutionEnvironment: JavaSE-21
