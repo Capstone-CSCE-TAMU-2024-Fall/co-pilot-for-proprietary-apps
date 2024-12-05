@@ -83,7 +83,7 @@ public class TextCompletionListener implements CaretListener, VerifyKeyListener 
 
 		TextCompletionService textCompletionService = TextCompletionService.getInstance();
 
-		if (event.keyCode == SWT.ESC) {
+		if (event.keyCode == SWT.ESC || event.keyCode == SWT.CR) {
 			textCompletionService.dismiss();
 			return;
 		}
