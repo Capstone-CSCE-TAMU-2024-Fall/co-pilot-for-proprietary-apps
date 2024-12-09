@@ -6,7 +6,7 @@ This is an Eclipse IDE plugin that aims to provide similar functionaliy to GitHu
 - Tabby (Basic functionality)
 
 # Installation
-[Download the extension](https://github.com/Capstone-CSCE-TAMU-2024-Fall/capstone-l3harris-co-pilot-for-proprietary-apps/releases/latest/)
+Download CodeAssistant.zip
 
 1. Open Eclipse
 2. Click Help -> Install New Software...
@@ -121,8 +121,6 @@ For more detailed information about how to contribute, take a look at [CONTRIBUT
 
 # Credits
 Capstone instructors: Brady Testa and Jeffrey Hykin
-
-Sponsors from L3Harris: Dwight Horne, Kayla Hunt
 
 The Tabby Eclipse plugin's code for rendering text was used in the [TextRenderer](/com.codingassistant.codingassistantplugin/src/com/codingassistant/codingassistant/TextRenderer.java) class. We really appreciate it being open source.
 https://github.com/TabbyML/tabby/tree/main/clients/eclipse
